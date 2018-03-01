@@ -1,0 +1,46 @@
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+<script type="text/javascript" src="jquery-collision.min.js"></script>
+
+<script type="text/javascript" src="countdown.js"></script>
+<script type="text/javascript" src="world.js"></script>
+<script type="text/javascript" src="mario.js"></script>
+<script type="text/javascript" src="main.js"></script>
+
+</head>
+<body>
+<div id="timerBox">
+  <div id="days" class="timerNum">
+    <span class="number"></span>
+    <span class="label">days</span>
+  </div>
+  <div id="hours" class="timerNum">
+    <span class="number"></span>
+    <span class="label">hours</span>
+  </div>
+  <div id="minutes" class="timerNum">
+    <span class="number"></span>
+    <span class="label">minutes</span>
+  </div>
+  <div id="seconds" class="timerNum">
+    <span class="number flip"></span>
+    <span class="label">seconds</span>
+  </div>
+  <div id="deadline"></div>
+</div>
+<div id="playArea">
+  <div id="platforms"></div>
+  <div id="player"></div>
+</div>
+<div id="HUD">
+</div>
+</body>
+</html>
