@@ -19,7 +19,8 @@ const Mario = (elem) => {
   const STATES = {
     STAND: 'stand',
     WALK: 'walk',
-    JUMP: 'jump'
+    JUMP: 'jump',
+    DIE: 'die'
   }
   const POWER_STATES = {
     NORMAL: 'normal',
@@ -41,7 +42,7 @@ const Mario = (elem) => {
   let state = STATES.STAND
   let power = POWER_STATES.NORMAL
   let direction = DIRECTION.RIGHT
-  let x = 0
+  let x = 64
   let y = 0
   let velocityY = 0
   let onGround = true
@@ -164,7 +165,7 @@ const Mario = (elem) => {
     }
 
     // handle jump anim
-    if (keyMap[KEYS.UP]) {
+    if (keyMap[KEYS.UP] || !onGround) {
       setState(STATES.JUMP)
     }
 
@@ -178,16 +179,26 @@ const Mario = (elem) => {
       velocityY = jumpVelocityLimit
     }
 
-    if (!hasActed) {
+    if (!hasActed && onGround) {
       setState(STATES.STAND)
     }
     // end actions ----------------------
 
     onRender()
 
+    // check collision
+    const enemyHits = elem.collision('.enemy')
+    if (enemyHits.length) {
+      console.log('kill mario')
+      elem.remove()
+    }
+    const enemyKills = elem.collision('.weakness')
+    if (enemyKills.length) {
+      console.log('kill goomb')
+    }
+
     // find floor
     const floor = findFloor(x)
-
 
     // gravity --------------------
     // calc jump

@@ -39,12 +39,75 @@ div.timerNum span.label {
 /*********************************/
 
 body {
- background-color: #9595D4;
+ background-color: #7E8DCF;
+}
+
+.bg {
+  position: absolute;
+}
+
+.bg.largeHill {
+  background-image: url('images/background/hill2.gif');
+  width: 160px;
+  height: 70px
+}
+
+.bg.smallHill {
+  background-image: url('images/background/hill1.gif');
+  width: 96px;
+  height: 38px
+}
+
+.bg.bush1 {
+  background-image: url('images/background/bush1.gif');
+  width: 64px;
+  height: 32px
+}
+
+.bg.bush2 {
+  background-image: url('images/background/bush2.gif');
+  width: 96px;
+  height: 32px
+}
+
+.bg.bush3 {
+  background-image: url('images/background/bush3.gif');
+  width: 128px;
+  height: 32px
+}
+
+.bg.cloud1 {
+  background-image: url('images/background/cloud1.gif');
+  width: 64px;
+  height: 48px
+}
+
+.bg.cloud2 {
+  background-image: url('images/background/cloud2.gif');
+  width: 96px;
+  height: 48px
+}
+
+.bg.cloud3 {
+  background-image: url('images/background/cloud3.gif');
+  width: 128px;
+  height: 48px
 }
 
 #player {
   position: absolute;
   background-repeat: no-repeat;
+}
+
+.enemy {
+  position: absolute;
+}
+
+.enemy .weakness {
+  position: absolute;
+  top: -5px;
+  width: 32px;
+  height: 5px;
 }
 
 .floor1 {
@@ -54,4 +117,11 @@ body {
   position: absolute;
   bottom: 0;
 }
+
+.pipe {
+  background-image: url(images/tiles/pipe.gif);
+  width: 64px;
+  height: 64px;
+  position: absolute;
+  bottom: 64;
 }
