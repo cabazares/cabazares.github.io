@@ -7,7 +7,7 @@ $(document).ready(() => {
   const world = createLevel(1)
 
   // setup player
-  const player = Mario($('#player'))
+  const player = Mario($('#playArea'))
 
   // render 30 times a second
   setInterval(() => {

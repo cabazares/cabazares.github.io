@@ -14,7 +14,7 @@ const KEYS = {
   DOWN: 40
 }
 
-const Mario = (elem) => {
+const Mario = (parent) => {
   const SPRITE_BASE_URL = 'images/mario/'
   const STATES = {
     STAND: 'stand',
@@ -56,6 +56,14 @@ const Mario = (elem) => {
 
   const walkFrameLength = 3
   let lastWalkFrame = lastRender
+
+  const elem = $(`<div id="player">` +
+                 `<div class="playerHead"></div>` +
+                 `<div class="playerFoot"></div>` +
+                 `</div>`)
+  parent.append(elem)
+  const head = elem.find('.playerHead')
+  const foot = elem.find('.playerFoot')
 
   // set new state for mario
   const setState = (newState) => {
@@ -172,7 +180,6 @@ const Mario = (elem) => {
     // handle jump
     if (keyMap[KEYS.UP] && onGround) {
       velocityY = jumpSpeed
-      onGround = false
       hasActed = true
     }
     else if(!keyMap[KEYS.UP] && velocityY > jumpVelocityLimit) {
@@ -186,7 +193,25 @@ const Mario = (elem) => {
 
     onRender()
 
-    // check collision
+    // collision with ground
+    const groundCollision = foot.collision('.platform,.block')
+    onGround = groundCollision.length > 0
+    if (groundCollision.length && state != STATES.JUMP) {
+      // end drop
+      const floor = groundCollision
+      velocityY = 0
+      y = parseInt(floor.css('bottom')) + floor.height()
+    }
+
+    // head collision
+    const headCollision = head.collision('.block')
+    if (headCollision.length) {
+      // limit position
+      const block = headCollision
+      y = parseInt(block.css('bottom')) - height
+    }
+
+    // check collision with enemies
     const enemyHits = elem.collision('.enemy')
     if (enemyHits.length) {
       console.log('kill mario')
@@ -202,13 +227,12 @@ const Mario = (elem) => {
 
     // gravity --------------------
     // calc jump
-    velocityY -= gravity
+    velocityY -= (!onGround)? gravity : 0
     y += velocityY
 
     if (y <= 64) {
         y = 64
         velocityY = 0.0
-        onGround = true
     }
 
     elem.css({

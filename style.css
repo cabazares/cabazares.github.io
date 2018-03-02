@@ -98,6 +98,18 @@ body {
   position: absolute;
   background-repeat: no-repeat;
 }
+#player .playerHead{
+ position: absolute;
+ width: 26px;
+ height: 2px;
+ top: -2px;
+}
+#player .playerFoot{
+ position: absolute;
+ width: 26px;
+ height: 2px;
+ bottom: -2px;
+}
 
 .enemy {
   position: absolute;
