@@ -244,7 +244,26 @@ const Mario = (parent) => {
   onChangeState()
 
 
+  const position = () => {
+    return {
+      x,
+      y
+    }
+  }
+
+  const setX = (newX) => {
+    x = newX
+  }
+
+  const setY = (newY) => {
+    y = newY
+  }
+
   return {
+    position,
+    setX,
+    setY,
+
     onChangeState,
     render
   }
