@@ -110,6 +110,12 @@ body {
   height: 5px;
 }
 
+.block {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+}
+
 .floor1 {
   background-image: url(images/tiles/floor1.png);
   width: 32px;

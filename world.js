@@ -73,6 +73,16 @@ const createLevel = (level) => {
     createPlatform(1470, 64, 2, 4, 'pipe')
     createPlatform(1820, 64, 2, 4, 'pipe')
 
+    // blocks
+    const blocksBox = $('#blocks')
+    Block('question', blocksBox, 17, 5)
+    Block('brick', blocksBox, 21, 5)
+    Block('question', blocksBox, 22, 5)
+    Block('brick', blocksBox, 23, 5)
+    Block('question', blocksBox, 24, 5)
+    Block('brick', blocksBox, 25, 5)
+    Block('question', blocksBox, 23, 9)
+
     // create 1 enemy
     enemies.push(Enemy('goomba', $('#enemies'), 1300))
   }

@@ -32,8 +32,8 @@ const Mario = (elem) => {
     RIGHT: 'right'
   }
 
-  const jumpSpeed = 30
-  const jumpVelocityLimit = 8
+  const jumpSpeed = 13
+  const jumpVelocityLimit = 6
   const gravity = 0.6
 
   let width = 26
@@ -175,7 +175,7 @@ const Mario = (elem) => {
       onGround = false
       hasActed = true
     }
-    else if(velocityY > jumpVelocityLimit) {
+    else if(!keyMap[KEYS.UP] && velocityY > jumpVelocityLimit) {
       velocityY = jumpVelocityLimit
     }
 
