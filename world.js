@@ -1,6 +1,7 @@
 
 const platforms = []
 const enemies = []
+const blocks = []
 
 const createPlatform = (left, bottom, width, height, type) => {
   type = type || 'floor1'
@@ -75,13 +76,13 @@ const createLevel = (level) => {
 
     // blocks
     const blocksBox = $('#blocks')
-    Block('question', blocksBox, 17, 5)
-    Block('brick', blocksBox, 21, 5)
-    Block('question', blocksBox, 22, 5)
-    Block('brick', blocksBox, 23, 5)
-    Block('question', blocksBox, 24, 5)
-    Block('brick', blocksBox, 25, 5)
-    Block('question', blocksBox, 23, 9)
+    blocks.push(Block('question', blocksBox, 17, 5))
+    blocks.push(Block('brick', blocksBox, 21, 5))
+    blocks.push(Block('question', blocksBox, 22, 5))
+    blocks.push(Block('brick', blocksBox, 23, 5))
+    blocks.push(Block('question', blocksBox, 24, 5))
+    blocks.push(Block('brick', blocksBox, 25, 5))
+    blocks.push(Block('question', blocksBox, 23, 9))
 
     // create 1 enemy
     enemies.push(Enemy('goomba', $('#enemies'), 1300))

@@ -42,7 +42,9 @@ const Mario = (parent) => {
   let state = STATES.STAND
   let power = POWER_STATES.NORMAL
   let direction = DIRECTION.RIGHT
-  let x = 64
+  let prevX = 64
+  let prevY = 0
+  let x = 0
   let y = 0
   let velocityY = 0
   let onGround = true
@@ -193,6 +195,13 @@ const Mario = (parent) => {
 
     onRender()
 
+    // collisions ----------------------------
+    // left or right collision
+    const platformCollision = elem.collision('.platform,.block')
+    if (platformCollision.length) {
+      x = prevX
+    }
+
     // collision with ground
     const groundCollision = foot.collision('.platform,.block')
     onGround = groundCollision.length > 0
@@ -208,7 +217,14 @@ const Mario = (parent) => {
     if (headCollision.length) {
       // limit position
       const block = headCollision
-      y = parseInt(block.css('bottom')) - height
+      velocityY = 0
+      y = parseInt(block.css('bottom')) - height - 2
+
+      // tell block it was hit
+      const hitBlock = blocks.filter(b => {
+        return b.elem[0] === block[0]
+      })[0]
+      hitBlock.hit()
     }
 
     // check collision with enemies
@@ -238,6 +254,10 @@ const Mario = (parent) => {
     elem.css({
       bottom: y
     })
+
+    // save previous values
+    prevX = x
+    prevY = y
   }
 
   // trigger on change state

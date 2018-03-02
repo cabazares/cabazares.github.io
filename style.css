@@ -143,3 +143,13 @@ html, body {
   position: absolute;
   bottom: 64;
 }
+
+.effect {
+  position: absolute;
+}
+
+.effect.coin {
+  background-image: url(images/tiles/coin.gif);
+  width: 16px;
+  height: 28px
+}

@@ -33,8 +33,57 @@ const Block = (type, parent, x, y) => {
 
   setSprite()
 
-  const hit = () => {
+  let animating = false
 
+  const hit = () => {
+    if (animating || state !== STATES.ACTIVE) {
+      return
+    }
+
+
+    const left = parseInt(elem.css('left'))
+    const bottom = parseInt(elem.css('bottom'))
+
+    // move up a bit
+    if (type === 'brick') {
+      const offset = 5
+      animating = true
+      elem.animate({
+        bottom: bottom + offset
+      }, 50).animate({
+        bottom
+      }, () => {
+        animating = false
+      })
+    }
+    else if (type === 'question') {
+      const offset = 5
+      animating = true
+      elem.animate({
+        bottom: bottom + offset
+      }, 50, () => {
+        state = STATES.EMPTY
+        setSprite()
+      }).animate({
+        bottom
+      }, 'linear', () => {
+        animating = false
+      })
+
+      // animate coin
+      const coin = $('<div class="effect coin"></div>')
+      parent.append(coin)
+      coin.css({
+        left: left + 8,
+        bottom: bottom + 32
+      }).animate({
+        bottom: bottom + 128
+      }).animate({
+        bottom: bottom + 32
+      }, () => {
+        coin.remove()
+      })
+    }
   }
 
   return {
