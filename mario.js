@@ -32,9 +32,9 @@ const Mario = (parent) => {
     RIGHT: 'right'
   }
 
-  const jumpSpeed = 13
-  const jumpVelocityLimit = 6
-  const gravity = 0.6
+  const jumpSpeed = 14.2
+  const jumpVelocityLimit = 10
+  const gravity = 0.8
 
   let width = 26
   let height = 32
@@ -42,9 +42,11 @@ const Mario = (parent) => {
   let state = STATES.STAND
   let power = POWER_STATES.NORMAL
   let direction = DIRECTION.RIGHT
-  let prevX = 64
+  let startX = 80
+  let startY = 0
+  let prevX = 80
   let prevY = 0
-  let x = 0
+  let x = 80
   let y = 0
   let velocityY = 0
   let onGround = true
@@ -66,6 +68,8 @@ const Mario = (parent) => {
   parent.append(elem)
   const head = elem.find('.playerHead')
   const foot = elem.find('.playerFoot')
+
+  elem.css({left:x})
 
   // set new state for mario
   const setState = (newState) => {
@@ -98,8 +102,8 @@ const Mario = (parent) => {
           width = 32
           height = 64
         }
-
       break
+
       case STATES.JUMP:
         sprite = 'jump.gif'
         if (power = POWER_STATES.NORMAL) {
@@ -109,8 +113,14 @@ const Mario = (parent) => {
           width = 32
           height = 64
         }
-
       break
+
+      case STATES.DIE:
+        sprite = 'dead.gif'
+        width = 30
+        height = 28
+      break
+
       case STATES.STAND:
       default:
         sprite = 'stand.gif'
@@ -155,6 +165,11 @@ const Mario = (parent) => {
 
   // render
   const render = () => {
+
+    // dont do anything if dead already
+    if (state === STATES.DIE) {
+      return
+    }
 
     // actions ----------------------------
     let hasActed = false
@@ -227,15 +242,20 @@ const Mario = (parent) => {
       hitBlock.hit()
     }
 
+    // check if killed enemy
+    const enemyKills = foot.collision('.enemy')
+    if (enemyKills.length) {
+      enemyKills.remove()
+
+      // make mario jump after killing
+      setState(STATES.JUMP)
+      velocityY = jumpSpeed
+    }
+
     // check collision with enemies
     const enemyHits = elem.collision('.enemy')
-    if (enemyHits.length) {
-      console.log('kill mario')
-      elem.remove()
-    }
-    const enemyKills = elem.collision('.weakness')
-    if (enemyKills.length) {
-      console.log('kill goomb')
+    if (!enemyKills.length && enemyHits.length && state !== STATES.DIE) {
+      die()
     }
 
     // find floor
@@ -263,6 +283,28 @@ const Mario = (parent) => {
   // trigger on change state
   onChangeState()
 
+  const die = () => {
+    setState(STATES.DIE)
+    elem.animate({
+      bottom: y
+    }, 500).animate({
+      bottom: y + 150
+    }, 400).animate({
+      bottom: -height
+    }, 400, () => {
+      reset()
+    })
+  }
+
+  const reset = () => {
+    // reset
+    x = startX
+    y = startY
+    prevX = x
+    prevY = y
+    elem.css({left:x, bottom: y})
+    setState(STATES.STAND)
+  }
 
   const position = () => {
     return {
