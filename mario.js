@@ -264,8 +264,39 @@ const Mario = (parent) => {
       if (power === POWER_STATES.NORMAL) {
         die()
       } else {
-        power = POWER_STATES.NORMAL
-        onChangeState()
+        elem
+        // small
+        .animate({opacity:1}, 0, () => {
+          elem.css({
+            height: height - 32,
+            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
+          })
+        })
+        // big
+        .animate({opacity:1}, 40, () => {
+          elem.css({
+            height,
+            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
+          })
+        })
+        // small
+        .animate({opacity:1}, 40, () => {
+          elem.css({
+            height: height - 32,
+            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
+          })
+        })
+        // big
+        .animate({opacity:1}, 40, () => {
+          elem.css({
+            height,
+            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
+          })
+        })
+        .animate({opacity:1}, 0, () => {
+          power = POWER_STATES.NORMAL
+          onChangeState()
+        })
       }
     }
 
