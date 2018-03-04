@@ -2,6 +2,7 @@
 const platforms = []
 const enemies = []
 const blocks = []
+const elements = []
 
 const createPlatform = (left, bottom, width, height, type) => {
   type = type || 'floor1'
@@ -37,7 +38,7 @@ const createBackground = (level, parent) => {
     }))
     .append($('<div class="largeHill bg"></div>').css({
       bottom: 64,
-      left: 1530
+      left: 1562
     }))
 
     // bushees
@@ -47,15 +48,15 @@ const createBackground = (level, parent) => {
     }))
     .append($('<div class="bush1 bg"></div>').css({
       bottom: 64,
-      left: 758
+      left: 790
     }))
     .append($('<div class="bush2 bg"></div>').css({
       bottom: 64,
-      left: 1332
+      left: 1364
     }))
     .append($('<div class="bush3 bg"></div>').css({
       bottom: 64,
-      left: 1910
+      left: 1942
     }))
   }
 }
@@ -69,29 +70,34 @@ const createLevel = (level) => {
     // create platforms
     createPlatform(0, 0, 100, 2)
     // pipe
-    createPlatform(900, 64, 2, 2, 'pipe')
-    createPlatform(1216, 64, 2, 3, 'pipe')
-    createPlatform(1470, 64, 2, 4, 'pipe')
-    createPlatform(1820, 64, 2, 4, 'pipe')
+    createPlatform(932, 64, 2, 2, 'pipe')
+    createPlatform(1248, 64, 2, 3, 'pipe')
+    createPlatform(1502, 64, 2, 4, 'pipe')
+    createPlatform(1852, 64, 2, 4, 'pipe')
 
     // blocks
     const blocksBox = $('#blocks')
-    blocks.push(Block('question', blocksBox, 17, 5))
+    blocks.push(Block('coin', blocksBox, 17, 5))
     blocks.push(Block('brick', blocksBox, 21, 5))
-    blocks.push(Block('question', blocksBox, 22, 5))
+    blocks.push(Block('mushroom', blocksBox, 22, 5))
     blocks.push(Block('brick', blocksBox, 23, 5))
-    blocks.push(Block('question', blocksBox, 24, 5))
+    blocks.push(Block('coin', blocksBox, 24, 5))
     blocks.push(Block('brick', blocksBox, 25, 5))
-    blocks.push(Block('question', blocksBox, 23, 9))
+    blocks.push(Block('coin', blocksBox, 23, 9))
 
-    // create 1 enemy
-    enemies.push(Enemy('goomba', $('#enemies'), 1300))
+    // create enemies
+    enemies.push(Enemy('goomba', $('#enemies'), 900))
+    enemies.push(Enemy('goomba', $('#enemies'), 1332))
   }
 
   const render = () => {
     cloudFactory.render()
 
     enemies.forEach(e => {
+      e.render()
+    })
+
+    elements.forEach(e => {
       e.render()
     })
   }
@@ -123,9 +129,10 @@ const CloudFactory = (parent) => {
   const clouds = []
 
   const createCloud = () => {
+    const scrollLeft = $(window).scrollLeft()
     const cloud = $(`<div class="bg cloud cloud${rand(3)}"></div>`).css({
         top: rand(350, 50),
-        left: windowWidth
+        left: scrollLeft + windowWidth
     })
     parent.append(cloud)
     clouds.push(cloud)
@@ -148,7 +155,8 @@ const CloudFactory = (parent) => {
 
     // remove cloud
     clouds.forEach(cloud => {
-      if (parseInt(cloud.css('left')) <= parseInt(cloud.css('width')) * -1) {
+      const scrollLeft = $(window).scrollLeft()
+      if (parseInt(cloud.css('left')) <= scrollLeft - parseInt(cloud.css('width'))) {
         cloud.remove()
         clouds.splice(clouds.indexOf(cloud), 1)
       }

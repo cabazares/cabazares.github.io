@@ -153,3 +153,7 @@ html, body {
   width: 16px;
   height: 28px
 }
+
+.element {
+  position: absolute;
+}

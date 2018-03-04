@@ -36,7 +36,6 @@ const Mario = (parent) => {
   const jumpVelocityLimit = 10
   const gravity = 0.8
 
-  let isAnimating = false
   let width = 26
   let height = 32
   let speed = 6
@@ -95,26 +94,24 @@ const Mario = (parent) => {
   const onChangeState = () => {
     switch(state) {
       case STATES.WALK:
-        if (power === POWER_STATES.NORMAL) {
+        sprite = 'walk1.gif'
+        if (power = POWER_STATES.NORMAL) {
           width = 26
           height = 32
-          sprite = 'walk1.gif'
         } else {
           width = 32
           height = 64
-          sprite = 'big_walk1.gif'
         }
       break
 
       case STATES.JUMP:
-        if (power === POWER_STATES.NORMAL) {
+        sprite = 'jump.gif'
+        if (power = POWER_STATES.NORMAL) {
           width = 34
           height = 32
-          sprite = 'jump.gif'
         } else {
           width = 32
           height = 64
-          sprite = 'big_jump.gif'
         }
       break
 
@@ -126,14 +123,13 @@ const Mario = (parent) => {
 
       case STATES.STAND:
       default:
-        if (power === POWER_STATES.NORMAL) {
+        sprite = 'stand.gif'
+        if (power = POWER_STATES.NORMAL) {
           width = 26
           height = 32
-          sprite = 'stand.gif'
         } else {
           width = 32
           height = 64
-          sprite = 'big_stand.gif'
         }
     }
     elem.css({
@@ -160,8 +156,6 @@ const Mario = (parent) => {
       const lastFrame = parseInt(sprite.replace(/[^\d]+/g, ''))
       const newFrame = (lastFrame % walkFrameLength) + 1
       sprite = `walk${newFrame}.gif`
-      sprite = (power === POWER_STATES.SUPER)? 'big_' + sprite : sprite
-      sprite = (power === POWER_STATES.FIRE)? 'fire_' + sprite : sprite
       elem.css({
         'background-image': `url('${SPRITE_BASE_URL + sprite}')`
       })
@@ -172,8 +166,8 @@ const Mario = (parent) => {
   // render
   const render = () => {
 
-    // dont do anything if dead already or is animating
-    if (state === STATES.DIE || isAnimating) {
+    // dont do anything if dead already
+    if (state === STATES.DIE) {
       return
     }
 
@@ -245,7 +239,7 @@ const Mario = (parent) => {
       const hitBlock = blocks.filter(b => {
         return b.elem[0] === block[0]
       })[0]
-      hitBlock.hit(power)
+      hitBlock.hit()
     }
 
     // check if killed enemy
@@ -261,54 +255,13 @@ const Mario = (parent) => {
     // check collision with enemies
     const enemyHits = elem.collision('.enemy')
     if (!enemyKills.length && enemyHits.length && state !== STATES.DIE) {
-      if (power === POWER_STATES.NORMAL) {
-        die()
-      } else {
-        power = POWER_STATES.NORMAL
-        onChangeState()
-      }
+      die()
     }
 
     const elementCollision = elem.collision('.element')
     if (elementCollision.length) {
-      if (elementCollision.is('.mushroom') && power === POWER_STATES.NORMAL) {
-
-        elementCollision.remove()
-        isAnimating = true
-        elem
-        // big
-        .animate({opacity:1}, 0, () => {
-          elem.css({
-            height: height + 32,
-            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
-          })
-        })
-        // small
-        .animate({opacity:1}, 60, () => {
-          elem.css({
-            height,
-            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
-          })
-        })
-        // big
-        .animate({opacity:1}, 60, () => {
-          elem.css({
-            height: height + 32,
-            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
-          })
-        })
-        // small
-        .animate({opacity:1}, 60, () => {
-          elem.css({
-            height,
-            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
-          })
-        })
-        .animate({opacity:1}, 60, () => {
-          power = POWER_STATES.SUPER
-          onChangeState()
-          isAnimating = false
-        })
+      if (elementCollision.is('.mushroom')) {
+        power = POWER_STATES.SUPER
       }
     }
 
