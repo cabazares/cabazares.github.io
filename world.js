@@ -40,8 +40,20 @@ const createBackground = (level, parent) => {
       bottom: 64,
       left: 1562
     }))
+    .append($('<div class="smallHill bg"></div>').css({
+      bottom: 64,
+      left: 2082
+    }))
+    .append($('<div class="largeHill bg"></div>').css({
+      bottom: 64,
+      left: 3128
+    }))
+    .append($('<div class="smallHill bg"></div>').css({
+      bottom: 64,
+      left: 3630
+    }))
 
-    // bushees
+    // bushes
     .append($('<div class="bush3 bg"></div>').css({
       bottom: 64,
       left: 408
@@ -58,6 +70,18 @@ const createBackground = (level, parent) => {
       bottom: 64,
       left: 1942
     }))
+    .append($('<div class="bush1 bg"></div>').css({
+      bottom: 64,
+      left: 2342
+    }))
+    .append($('<div class="bush2 bg"></div>').css({
+      bottom: 64,
+      left: 2912
+    }))
+    .append($('<div class="bush3 bg"></div>').css({
+      bottom: 64,
+      left: 3500
+    }))
   }
 }
 
@@ -68,7 +92,9 @@ const createLevel = (level) => {
     createBackground(level, $('#bg'))
 
     // create platforms
-    createPlatform(0, 0, 100, 2)
+    createPlatform(0, 0, 70, 2)
+    createPlatform(2336, 0, 15, 2)
+    createPlatform(2912, 0, 70, 2)
     // pipe
     createPlatform(932, 64, 2, 2, 'pipe')
     createPlatform(1248, 64, 2, 3, 'pipe')
@@ -85,9 +111,36 @@ const createLevel = (level) => {
     blocks.push(Block('brick', blocksBox, 25, 5))
     blocks.push(Block('coin', blocksBox, 23, 9))
 
+    blocks.push(Block('brick', blocksBox, 79, 5))
+    blocks.push(Block('coin', blocksBox, 80, 5))
+    blocks.push(Block('brick', blocksBox, 81, 5))
+    blocks.push(Block('brick', blocksBox, 82, 9))
+    blocks.push(Block('brick', blocksBox, 83, 9))
+    blocks.push(Block('brick', blocksBox, 84, 9))
+    blocks.push(Block('brick', blocksBox, 85, 9))
+    blocks.push(Block('brick', blocksBox, 86, 9))
+    blocks.push(Block('brick', blocksBox, 87, 9))
+    blocks.push(Block('brick', blocksBox, 88, 9))
+    blocks.push(Block('brick', blocksBox, 89, 9))
+
+    blocks.push(Block('brick', blocksBox, 93, 9))
+    blocks.push(Block('brick', blocksBox, 94, 9))
+    blocks.push(Block('brick', blocksBox, 95, 9))
+    blocks.push(Block('coin', blocksBox, 96, 9))
+    blocks.push(Block('brick', blocksBox, 96, 5))
+    blocks.push(Block('brick', blocksBox, 102, 5))
+    blocks.push(Block('brick', blocksBox, 103, 5))
+
+    blocks.push(Block('coin', blocksBox, 108, 5))
+    blocks.push(Block('coin', blocksBox, 111, 5))
+    blocks.push(Block('coin', blocksBox, 114, 5))
+    blocks.push(Block('coin', blocksBox, 111, 9))
+
     // create enemies
     enemies.push(Enemy('goomba', $('#enemies'), 900))
     enemies.push(Enemy('goomba', $('#enemies'), 1332))
+    enemies.push(Enemy('goomba', $('#enemies'), 1600))
+    enemies.push(Enemy('goomba', $('#enemies'), 1632))
   }
 
   const render = () => {
