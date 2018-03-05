@@ -154,6 +154,26 @@ html, body {
   height: 28px
 }
 
+.effect.brokenBrick {
+  position: absolute;
+  background-image: url(images/tiles/broken_brick.png);
+  width: 16px;
+  height: 16px;
+}
+
+.effect.brokenBrick.topLeft {
+  background-position: 0 0;
+}
+.effect.brokenBrick.topRight {
+  background-position: 17px 0;
+}
+.effect.brokenBrick.bottomLeft {
+  background-position: 0 17px;
+}
+.effect.brokenBrick.bottomRight {
+  background-position: 17px 17px;
+}
+
 .element {
   position: absolute;
 }

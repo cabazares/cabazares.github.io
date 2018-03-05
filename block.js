@@ -57,6 +57,30 @@ const Block = (type, parent, x, y) => {
         })
       } else {
         elem.remove()
+        const brokenTopLeft = $('<div class="effect brokenBrick topLeft"></div>')
+        const brokenTopRight = $('<div class="effect brokenBrick topRight"></div>')
+        const brokenBottomLeft = $('<div class="effect brokenBrick bottomLeft"></div>')
+        const brokenBottomRight = $('<div class="effect brokenBrick bottomRight"></div>')
+        const pieces = [brokenTopLeft, brokenTopRight, brokenBottomLeft, brokenBottomRight]
+        pieces.map((piece, index) => {
+          parent.append(piece)
+          const rightSide = (index & 1)
+          const bottomSide = (index & 2)
+          const px = (x * 32) + (rightSide? 16 : 0)
+          const py = 16 + (y * 32) - ((index & 2)? 16 : 0)
+          piece.css({
+            left: px,
+            bottom: py
+          }).animate({
+            left: px + (64 * (rightSide? 1 : -1)),
+            bottom: py + 96 - (bottomSide? 32 : 0)
+          }, 100).animate({
+            left: px + (128 * (rightSide? 1 : -1)),
+            bottom: -16
+          }, 200, () => {
+            piece.remove()
+          })
+        })
       }
     }
     else if (type === 'coin' || type === 'mushroom') {

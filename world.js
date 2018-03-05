@@ -180,13 +180,19 @@ const rand = (limit, start) => {
 const CloudFactory = (parent) => {
 
   const clouds = []
+  const $window = $(window)
 
   const createCloud = () => {
-    const scrollLeft = $(window).scrollLeft()
+    const scrollLeft = $window.scrollLeft()
+    const top = rand(350, 50)
+    const left = scrollLeft + windowWidth
     const cloud = $(`<div class="bg cloud cloud${rand(3)}"></div>`).css({
-        top: rand(350, 50),
-        left: scrollLeft + windowWidth
+        top,
+        left
     })
+    cloud.top = rand(350, 50)
+    cloud.left = scrollLeft + windowWidth
+    cloud.width = cloud.css('width')
     parent.append(cloud)
     clouds.push(cloud)
 
@@ -201,15 +207,16 @@ const CloudFactory = (parent) => {
 
     // move clouds
     clouds.forEach(cloud => {
+      cloud.left = cloud.left - rand(2, 0)
       cloud.css({
-        left: parseInt(cloud.css('left')) - rand(2, 0)
+        left: cloud.left
       })
     })
 
     // remove cloud
     clouds.forEach(cloud => {
       const scrollLeft = $(window).scrollLeft()
-      if (parseInt(cloud.css('left')) <= scrollLeft - parseInt(cloud.css('width'))) {
+      if (cloud.left <= scrollLeft - cloud.width) {
         cloud.remove()
         clouds.splice(clouds.indexOf(cloud), 1)
       }

@@ -20,7 +20,7 @@ const Enemy = (type, parent, x, y) => {
   x = (x != null)? x : windowWidth
   y = (y != null)? y : 64
 
-  const elem = $(`<div class="goomba enemy collider">` +
+  const elem = $(`<div class="${type} enemy collider">` +
                  `<div class="weakness"></div>` +
                  `</div>`)
   elem.css({
@@ -35,10 +35,28 @@ const Enemy = (type, parent, x, y) => {
       bottom: y
     })
   }
-
   move()
 
+  const die = () => {
+    state = STATES.DIE
+    elem.remove()
+    const deadElem = $('<div></div>').css({
+      position: 'absolute',
+      left: x,
+      bottom: y,
+      width,
+      height: height / 2,
+      'background-image': `url('${SPRITE_BASE_URL}dead_${sprite}')`,
+    })
+    parent.append(deadElem)
+    setTimeout(() => {deadElem.remove()}, 1000)
+  }
+
   const render = () => {
+    if (state === STATES.DIE) {
+      return
+    }
+
     if (direction === DIRECTION.LEFT) {
       x -= moveSpeed
     } else {
@@ -50,11 +68,6 @@ const Enemy = (type, parent, x, y) => {
     if (pipeCollides.length) {
       direction = (direction === DIRECTION.LEFT)? DIRECTION.RIGHT : DIRECTION.LEFT
     }
-
-    // FIXME: loop back
-    if (x < -width) {
-      x = windowWidth
-    }
   }
 
   if (parent) {
@@ -63,6 +76,7 @@ const Enemy = (type, parent, x, y) => {
 
   return {
     elem,
+    die,
     render
   }
 }

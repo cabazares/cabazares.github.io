@@ -44,11 +44,11 @@ const Mario = (parent) => {
   let power = POWER_STATES.NORMAL
   let direction = DIRECTION.RIGHT
   let startX = 80
-  let startY = 0
+  let startY = 64
   let prevX = 80
   let prevY = 0
   let x = 80
-  let y = 0
+  let y = 64
   let velocityY = 0
   let onGround = true
 
@@ -70,7 +70,10 @@ const Mario = (parent) => {
   const head = elem.find('.playerHead')
   const foot = elem.find('.playerFoot')
 
-  elem.css({left:x})
+  elem.css({
+    left:x,
+    bottom: y
+  })
 
   // set new state for mario
   const setState = (newState) => {
@@ -177,13 +180,30 @@ const Mario = (parent) => {
       return
     }
 
+    // gravity --------------------
+    // calc jump
+    velocityY -= (!onGround)? gravity : 0
+    y += velocityY
+
+    if (y <= 0) {
+      y = 0
+      velocityY = 0.0
+      die()
+    }
+
+    if (prevX !== x || prevY !== y) {
+      elem.css({
+        left: x,
+        bottom: y
+      })
+    }
+
     // actions ----------------------------
     let hasActed = false
     if (keyMap[KEYS.LEFT]) {
       direction = DIRECTION.LEFT
       setState(STATES.WALK)
       x -= speed
-      elem.css({left:x})
       hasActed = true
     }
 
@@ -191,7 +211,6 @@ const Mario = (parent) => {
       direction = DIRECTION.RIGHT
       setState(STATES.WALK)
       x += speed
-      elem.css({left:x})
       hasActed = true
     }
 
@@ -251,7 +270,10 @@ const Mario = (parent) => {
     // check if killed enemy
     const enemyKills = foot.collision('.enemy')
     if (enemyKills.length) {
-      enemyKills.remove()
+      const hitEnemy = enemies.filter(b => {
+        return b.elem[0] === enemyKills[0]
+      })[0]
+      hitEnemy.die()
 
       // make mario jump after killing
       setState(STATES.JUMP)
@@ -343,22 +365,12 @@ const Mario = (parent) => {
       }
     }
 
-    // find floor
-    const floor = findFloor(x)
-
-    // gravity --------------------
-    // calc jump
-    velocityY -= (!onGround)? gravity : 0
-    y += velocityY
-
-    if (y <= 64) {
-        y = 64
-        velocityY = 0.0
+    if (prevX !== x || prevY !== y) {
+      elem.css({
+        left: x,
+        bottom: y
+      })
     }
-
-    elem.css({
-      bottom: y
-    })
 
     // save previous values
     prevX = x
@@ -370,6 +382,7 @@ const Mario = (parent) => {
 
   const die = () => {
     setState(STATES.DIE)
+    isAnimating = true
     elem.animate({
       bottom: y
     }, 500).animate({
@@ -382,13 +395,14 @@ const Mario = (parent) => {
   }
 
   const reset = () => {
-    // reset
+    // reset position to start of level
     x = startX
     y = startY
     prevX = x
     prevY = y
-    elem.css({left:x, bottom: y})
+    direction = DIRECTION.RIGHT
     setState(STATES.STAND)
+    isAnimating = false
   }
 
   const position = () => {

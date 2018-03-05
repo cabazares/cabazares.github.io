@@ -1,7 +1,8 @@
 $(document).ready(() => {
 
-  let windowWidth = $(window).width()
-  let windowHeight = $(window).height()
+  const $window = $(window)
+  let windowWidth = $window.width()
+  let windowHeight = $window.height()
 
   // set countdown
   let countdownIntervat = setCountdown()
@@ -16,11 +17,10 @@ $(document).ready(() => {
   // render 30 times a second
   setInterval(() => {
     player.render()
-
     world.render()
 
     // scroll based on playet position
-    const scrollLeft = $(window).scrollLeft()
+    const scrollLeft = $window.scrollLeft()
     const scrollMax = (windowWidth * 0.8) + scrollLeft
     const playerX = player.position().x
     if (playerX >= scrollMax) {
