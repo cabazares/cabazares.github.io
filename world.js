@@ -52,6 +52,22 @@ const createBackground = (level, parent) => {
       bottom: 64,
       left: 3630
     }))
+    .append($('<div class="largeHill bg"></div>').css({
+      bottom: 64,
+      left: 4684
+    }))
+    .append($('<div class="smallHill bg"></div>').css({
+      bottom: 64,
+      left: 5184
+    }))
+    .append($('<div class="largeHill bg"></div>').css({
+      bottom: 64,
+      left: 6208
+    }))
+    .append($('<div class="smallHill bg"></div>').css({
+      bottom: 64,
+      left: 6620
+    }))
 
     // bushes
     .append($('<div class="bush3 bg"></div>').css({
@@ -82,6 +98,26 @@ const createBackground = (level, parent) => {
       bottom: 64,
       left: 3500
     }))
+    .append($('<div class="bush1 bg"></div>').css({
+      bottom: 64,
+      left: 3886
+    }))
+    .append($('<div class="bush2 bg"></div>').css({
+      bottom: 64,
+      left: 4462
+    }))
+    .append($('<div class="bush1 bg"></div>').css({
+      bottom: 64,
+      left: 5120
+    }))
+    .append($('<div class="bush1 bg"></div>').css({
+      bottom: 64,
+      left: 5412
+    }))
+    .append($('<div class="bush1 bg"></div>').css({
+      bottom: 64,
+      left: 6550
+    }))
   }
 }
 
@@ -94,12 +130,54 @@ const createLevel = (level) => {
     // create platforms
     createPlatform(0, 0, 70, 2)
     createPlatform(2336, 0, 15, 2)
-    createPlatform(2912, 0, 70, 2)
+    createPlatform(2912, 0, 64, 2)
+    createPlatform(5024, 0, 55, 2)
     // pipe
     createPlatform(932, 64, 2, 2, 'pipe')
     createPlatform(1248, 64, 2, 3, 'pipe')
     createPlatform(1502, 64, 2, 4, 'pipe')
     createPlatform(1852, 64, 2, 4, 'pipe')
+    createPlatform(5280, 64, 2, 2, 'pipe')
+    createPlatform(5792, 64, 2, 2, 'pipe')
+
+    // box mountain
+    createPlatform(4352, 64, 4, 1, 'box')
+    createPlatform(4384, 96, 3, 1, 'box')
+    createPlatform(4416, 128, 2, 1, 'box')
+    createPlatform(4448, 160, 1, 1, 'box')
+    createPlatform(4544, 160, 1, 1, 'box')
+    createPlatform(4544, 128, 2, 1, 'box')
+    createPlatform(4544, 96, 3, 1, 'box')
+    createPlatform(4544, 64, 4, 1, 'box')
+
+    // box mountain 2
+    createPlatform(4800, 64, 5, 1, 'box')
+    createPlatform(4832, 96, 4, 1, 'box')
+    createPlatform(4864, 128, 3, 1, 'box')
+    createPlatform(4896, 160, 2, 1, 'box')
+    createPlatform(5024, 160, 1, 1, 'box')
+    createPlatform(5024, 128, 2, 1, 'box')
+    createPlatform(5024, 96, 3, 1, 'box')
+    createPlatform(5024, 64, 4, 1, 'box')
+
+    // end mountain
+    createPlatform(32 * 183, 32 * 2, 9, 1, 'box')
+    createPlatform(32 * 184, 32 * 3, 8, 1, 'box')
+    createPlatform(32 * 185, 32 * 4, 7, 1, 'box')
+    createPlatform(32 * 186, 32 * 5, 6, 1, 'box')
+    createPlatform(32 * 187, 32 * 6, 5, 1, 'box')
+    createPlatform(32 * 188, 32 * 7, 4, 1, 'box')
+    createPlatform(32 * 189, 32 * 8, 3, 1, 'box')
+    createPlatform(32 * 190, 32 * 9, 2, 1, 'box')
+
+    // flag
+    createPlatform(32 * 200, 64, 1, 1, 'box')
+    $('#platforms').append($(`
+      <div id="endFlag">
+        <div class="pole"></div>
+        <div class="top"></div>
+      </div>
+    `))
 
     // blocks
     const blocksBox = $('#blocks')
@@ -111,6 +189,7 @@ const createLevel = (level) => {
     blocks.push(Block('brick', blocksBox, 25, 5))
     blocks.push(Block('coin', blocksBox, 23, 9))
 
+    // bricks over first hole
     blocks.push(Block('brick', blocksBox, 79, 5))
     blocks.push(Block('coin', blocksBox, 80, 5))
     blocks.push(Block('brick', blocksBox, 81, 5))
@@ -123,6 +202,7 @@ const createLevel = (level) => {
     blocks.push(Block('brick', blocksBox, 88, 9))
     blocks.push(Block('brick', blocksBox, 89, 9))
 
+    // bricks after first hole
     blocks.push(Block('brick', blocksBox, 93, 9))
     blocks.push(Block('brick', blocksBox, 94, 9))
     blocks.push(Block('brick', blocksBox, 95, 9))
@@ -131,10 +211,30 @@ const createLevel = (level) => {
     blocks.push(Block('brick', blocksBox, 102, 5))
     blocks.push(Block('brick', blocksBox, 103, 5))
 
+    // triangle coin area
     blocks.push(Block('coin', blocksBox, 108, 5))
     blocks.push(Block('coin', blocksBox, 111, 5))
     blocks.push(Block('coin', blocksBox, 114, 5))
     blocks.push(Block('coin', blocksBox, 111, 9))
+
+    // before block mountain
+    blocks.push(Block('brick', blocksBox, 120, 5))
+    blocks.push(Block('brick', blocksBox, 123, 9))
+    blocks.push(Block('brick', blocksBox, 124, 9))
+    blocks.push(Block('brick', blocksBox, 125, 9))
+
+    blocks.push(Block('brick', blocksBox, 130, 9))
+    blocks.push(Block('coin', blocksBox, 131, 9))
+    blocks.push(Block('coin', blocksBox, 132, 9))
+    blocks.push(Block('brick', blocksBox, 133, 9))
+    blocks.push(Block('brick', blocksBox, 131, 5))
+    blocks.push(Block('brick', blocksBox, 132, 5))
+
+    // before end
+    blocks.push(Block('brick', blocksBox, 170, 5))
+    blocks.push(Block('brick', blocksBox, 171, 5))
+    blocks.push(Block('coin', blocksBox, 172, 5))
+    blocks.push(Block('brick', blocksBox, 173, 5))
 
     // create enemies
     enemies.push(Enemy('goomba', $('#enemies'), 900))

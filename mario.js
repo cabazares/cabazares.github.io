@@ -180,24 +180,6 @@ const Mario = (parent) => {
       return
     }
 
-    // gravity --------------------
-    // calc jump
-    velocityY -= (!onGround)? gravity : 0
-    y += velocityY
-
-    if (y <= 0) {
-      y = 0
-      velocityY = 0.0
-      die()
-    }
-
-    if (prevX !== x || prevY !== y) {
-      elem.css({
-        left: x,
-        bottom: y
-      })
-    }
-
     // actions ----------------------------
     let hasActed = false
     if (keyMap[KEYS.LEFT]) {
@@ -363,6 +345,17 @@ const Mario = (parent) => {
           isAnimating = false
         })
       }
+    }
+
+    // gravity --------------------
+    // calc jump
+    velocityY -= (!onGround)? gravity : 0
+    y += velocityY
+
+    if (y <= 0) {
+      y = 0
+      velocityY = 0.0
+      die()
     }
 
     if (prevX !== x || prevY !== y) {

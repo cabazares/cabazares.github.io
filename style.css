@@ -136,6 +136,14 @@ html, body {
   bottom: 0;
 }
 
+.platform.box {
+  background-image: url(images/tiles/box.png);
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  bottom: 0;
+}
+
 .pipe {
   background-image: url(images/tiles/pipe.gif);
   width: 64px;
@@ -176,4 +184,28 @@ html, body {
 
 .element {
   position: absolute;
+}
+
+#endFlag {
+    left: 6400px;
+    bottom: 96px;
+    width: 32px;
+    height: 320px;
+    position: absolute;
+}
+
+#endFlag .pole {
+    background-color: #A6D79F;
+    width: 5px;
+    height: 288px;
+    margin-left: 14px;
+    margin-top: 32px;
+}
+
+#endFlag .top {
+  top: 0;
+  height: 32px;
+  width: 32px;
+  position: absolute;
+  background-image: url('images/tiles/pole_tip.png');
 }
