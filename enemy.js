@@ -1,5 +1,5 @@
 
-const Enemy = (type, parent, x, y) => {
+const Enemy = (type, world, x, y) => {
   const SPRITE_BASE_URL = 'images/enemies/'
 
   const STATES = {
@@ -11,6 +11,7 @@ const Enemy = (type, parent, x, y) => {
     RIGHT: 'right'
   }
 
+  let parent = world.DOM.enemies
   let direction = DIRECTION.LEFT
   let state = STATES.WALK
   let sprite = `${type}.gif`
@@ -74,9 +75,12 @@ const Enemy = (type, parent, x, y) => {
     parent.append(elem)
   }
 
-  return {
+  const enemy = {
     elem,
     die,
     render
   }
+  world.enemies.push(enemy)
+
+  return enemy
 }

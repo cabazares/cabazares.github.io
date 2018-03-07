@@ -1,6 +1,6 @@
-const setCountdown = () => {
+const setCountdown = (date) => {
   const urlDate = (new URL(window.location.href)).searchParams.get('date')
-  const deadline = (urlDate)? new Date(urlDate) : new Date('2018-03-04T10:00:00') //new Date('2018-02-23T17:00:00')
+  const deadline = (urlDate)? new Date(urlDate) : new Date(date)
 
   const dayCnt = $('#days > .number')
   const hrsCnt = $('#hours > .number')

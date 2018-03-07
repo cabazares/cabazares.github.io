@@ -1,20 +1,5 @@
 
-let windowWidth = $(window).width()
-let windowHeight = $(window).height()
-
-$(window).on('resize', () => {
-  windowWidth = $(window).width()
-  windowHeight = $(window).height()
-})
-
-const KEYS = {
-  LEFT: 37,
-  UP: 38,
-  RIGHT: 39,
-  DOWN: 40
-}
-
-const Mario = (parent) => {
+const Mario = (world) => {
   const SPRITE_BASE_URL = 'images/mario/'
   const STATES = {
     STAND: 'stand',
@@ -39,7 +24,7 @@ const Mario = (parent) => {
   let isAnimating = false
   let width = 26
   let height = 32
-  let speed = 6
+  let speed = 8
   let state = STATES.STAND
   let power = POWER_STATES.NORMAL
   let direction = DIRECTION.RIGHT
@@ -62,13 +47,18 @@ const Mario = (parent) => {
   const walkFrameLength = 3
   let lastWalkFrame = lastRender
 
+  const parent = world.DOM.playArea
   const elem = $(`<div id="player">` +
                  `<div class="playerHead"></div>` +
                  `<div class="playerFoot"></div>` +
+                 `<div class="playerLeft"></div>` +
+                 `<div class="playerRight"></div>` +
                  `</div>`)
   parent.append(elem)
   const head = elem.find('.playerHead')
   const foot = elem.find('.playerFoot')
+  const pLeft = elem.find('.playerLeft')
+  const pRight = elem.find('.playerRight')
 
   elem.css({
     left:x,
@@ -172,12 +162,58 @@ const Mario = (parent) => {
     }
   }
 
+  const createFireworks = () => {
+    const scrollLeft = $(window).scrollLeft()
+    const top = rand(windowHeight * 0.8, 50)
+    const left = scrollLeft + rand(windowWidth)
+    const firework = $(`<div class="effect fireworks"></div>`).css({
+        top,
+        left
+    })
+    parent.append(firework)
+
+    setTimeout(() => {
+      firework.remove()
+    }, 200)
+
+    return firework
+  }
+
+
   // render
   const render = () => {
 
     // dont do anything if dead already or is animating
     if (state === STATES.DIE || isAnimating) {
       return
+    }
+
+    if (world.isLevelFinished()) {
+      // chance to create cloud
+      if (Math.random() <= 0.2) {
+        createFireworks()
+      }
+    }
+
+    // check win -------------------------
+    const flagPosition = 6400
+    if (!world.isLevelFinished() && x >= flagPosition) {
+      const pole = $('#endFlag')
+      const maxDist = pole.height() - 64
+      const flag = $('#endFlag .flag')
+      let distance = windowHeight - pole.position().top - y - 32
+      distance = (distance <= 0)? 0 : distance
+      distance = (distance > maxDist)? maxDist : distance
+      flag.animate({
+        top: distance
+      }, 500, () => {
+        $('#timerBox').remove()
+        const congratsElem = $('<div id="congrats">')
+        congratsElem.hide()
+        $('body').append(congratsElem)
+        congratsElem.slideDown()
+      })
+      world.finishLevel()
     }
 
     // actions ----------------------------
@@ -222,6 +258,15 @@ const Mario = (parent) => {
     const platformCollision = elem.collision('.platform,.block')
     if (platformCollision.length) {
       x = prevX
+      /*
+      const platform = platformCollision
+      const platformX = platform.css('left')
+      if (x < platformX) {
+        x = platformX - width
+      } else {
+        x = platformX + platform.width()
+      }
+      */
     }
 
     // collision with ground
@@ -243,7 +288,7 @@ const Mario = (parent) => {
       y = parseInt(block.css('bottom')) - height - 2
 
       // tell block it was hit
-      const hitBlock = blocks.filter(b => {
+      const hitBlock = world.blocks.filter(b => {
         return b.elem[0] === block[0]
       })[0]
       hitBlock.hit(power)
@@ -252,7 +297,7 @@ const Mario = (parent) => {
     // check if killed enemy
     const enemyKills = foot.collision('.enemy')
     if (enemyKills.length) {
-      const hitEnemy = enemies.filter(b => {
+      const hitEnemy = world.enemies.filter(b => {
         return b.elem[0] === enemyKills[0]
       })[0]
       hitEnemy.die()
@@ -412,6 +457,8 @@ const Mario = (parent) => {
   const setY = (newY) => {
     y = newY
   }
+
+
 
   return {
     position,

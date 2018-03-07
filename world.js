@@ -1,246 +1,200 @@
 
-const platforms = []
-const enemies = []
-const blocks = []
-const elements = []
-
-const createPlatform = (left, bottom, width, height, type) => {
-  type = type || 'floor1'
-  width = width * 32
-  height = height * 32
-  const elem = $(
-     `<div class="${type} platform"></div>`
-  )
-  elem.css({
-    left,
-    bottom,
-    width,
-    height
-  })
-
-  platforms.push(elem)
-  $('#platforms').append(elem)
-
-  return elem
-}
-
-const createBackground = (level, parent) => {
-  if (level === 1) {
-    // create hills
-    parent
-    .append($('<div class="largeHill bg"></div>').css({
-      bottom: 64,
-      left: 0
-    }))
-    .append($('<div class="smallHill bg"></div>').css({
-      bottom: 64,
-      left: 548
-    }))
-    .append($('<div class="largeHill bg"></div>').css({
-      bottom: 64,
-      left: 1562
-    }))
-    .append($('<div class="smallHill bg"></div>').css({
-      bottom: 64,
-      left: 2082
-    }))
-    .append($('<div class="largeHill bg"></div>').css({
-      bottom: 64,
-      left: 3128
-    }))
-    .append($('<div class="smallHill bg"></div>').css({
-      bottom: 64,
-      left: 3630
-    }))
-    .append($('<div class="largeHill bg"></div>').css({
-      bottom: 64,
-      left: 4684
-    }))
-    .append($('<div class="smallHill bg"></div>').css({
-      bottom: 64,
-      left: 5184
-    }))
-    .append($('<div class="largeHill bg"></div>').css({
-      bottom: 64,
-      left: 6208
-    }))
-    .append($('<div class="smallHill bg"></div>').css({
-      bottom: 64,
-      left: 6620
-    }))
-
-    // bushes
-    .append($('<div class="bush3 bg"></div>').css({
-      bottom: 64,
-      left: 408
-    }))
-    .append($('<div class="bush1 bg"></div>').css({
-      bottom: 64,
-      left: 790
-    }))
-    .append($('<div class="bush2 bg"></div>').css({
-      bottom: 64,
-      left: 1364
-    }))
-    .append($('<div class="bush3 bg"></div>').css({
-      bottom: 64,
-      left: 1942
-    }))
-    .append($('<div class="bush1 bg"></div>').css({
-      bottom: 64,
-      left: 2342
-    }))
-    .append($('<div class="bush2 bg"></div>').css({
-      bottom: 64,
-      left: 2912
-    }))
-    .append($('<div class="bush3 bg"></div>').css({
-      bottom: 64,
-      left: 3500
-    }))
-    .append($('<div class="bush1 bg"></div>').css({
-      bottom: 64,
-      left: 3886
-    }))
-    .append($('<div class="bush2 bg"></div>').css({
-      bottom: 64,
-      left: 4462
-    }))
-    .append($('<div class="bush1 bg"></div>').css({
-      bottom: 64,
-      left: 5120
-    }))
-    .append($('<div class="bush1 bg"></div>').css({
-      bottom: 64,
-      left: 5412
-    }))
-    .append($('<div class="bush1 bg"></div>').css({
-      bottom: 64,
-      left: 6550
-    }))
+const World = (DOM) => {
+  const platforms = []
+  const enemies = []
+  const blocks = []
+  const elements = []
+  const world = {
+    DOM,
+    platforms,
+    enemies,
+    blocks,
+    elements
   }
-}
 
-const createLevel = (level) => {
-  const cloudFactory = CloudFactory($('#clouds'))
+  const cloudFactory = CloudFactory(world)
 
-  if (level === 1) {
-    createBackground(level, $('#bg'))
+  // level state
+  let isLevelFinished = false
+  let flagPosition = NaN
 
-    // create platforms
-    createPlatform(0, 0, 70, 2)
-    createPlatform(2336, 0, 15, 2)
-    createPlatform(2912, 0, 64, 2)
-    createPlatform(5024, 0, 55, 2)
-    // pipe
-    createPlatform(932, 64, 2, 2, 'pipe')
-    createPlatform(1248, 64, 2, 3, 'pipe')
-    createPlatform(1502, 64, 2, 4, 'pipe')
-    createPlatform(1852, 64, 2, 4, 'pipe')
-    createPlatform(5280, 64, 2, 2, 'pipe')
-    createPlatform(5792, 64, 2, 2, 'pipe')
+  const createPlatform = (left, bottom, width, height, type) => {
+    type = type || 'floor1'
+    width = width * 32
+    height = height * 32
+    const elem = $(
+       `<div class="${type} platform"></div>`
+    ).css({
+      left,
+      bottom,
+      width,
+      height
+    })
 
-    // box mountain
-    createPlatform(4352, 64, 4, 1, 'box')
-    createPlatform(4384, 96, 3, 1, 'box')
-    createPlatform(4416, 128, 2, 1, 'box')
-    createPlatform(4448, 160, 1, 1, 'box')
-    createPlatform(4544, 160, 1, 1, 'box')
-    createPlatform(4544, 128, 2, 1, 'box')
-    createPlatform(4544, 96, 3, 1, 'box')
-    createPlatform(4544, 64, 4, 1, 'box')
+    platforms.push(elem)
+    DOM.platforms.append(elem)
 
-    // box mountain 2
-    createPlatform(4800, 64, 5, 1, 'box')
-    createPlatform(4832, 96, 4, 1, 'box')
-    createPlatform(4864, 128, 3, 1, 'box')
-    createPlatform(4896, 160, 2, 1, 'box')
-    createPlatform(5024, 160, 1, 1, 'box')
-    createPlatform(5024, 128, 2, 1, 'box')
-    createPlatform(5024, 96, 3, 1, 'box')
-    createPlatform(5024, 64, 4, 1, 'box')
+    return elem
+  }
 
-    // end mountain
-    createPlatform(32 * 183, 32 * 2, 9, 1, 'box')
-    createPlatform(32 * 184, 32 * 3, 8, 1, 'box')
-    createPlatform(32 * 185, 32 * 4, 7, 1, 'box')
-    createPlatform(32 * 186, 32 * 5, 6, 1, 'box')
-    createPlatform(32 * 187, 32 * 6, 5, 1, 'box')
-    createPlatform(32 * 188, 32 * 7, 4, 1, 'box')
-    createPlatform(32 * 189, 32 * 8, 3, 1, 'box')
-    createPlatform(32 * 190, 32 * 9, 2, 1, 'box')
+  const createBGElem = (type, left, bottom) => {
+    bottom = (bottom != null)? bottom : 64
+    return $(`<div class="${type} bg"></div>`).css({
+      bottom,
+      left
+    })
+  }
 
-    // flag
-    createPlatform(32 * 200, 64, 1, 1, 'box')
-    $('#platforms').append($(`
-      <div id="endFlag">
-        <div class="pole"></div>
-        <div class="top"></div>
-      </div>
-    `))
+  const createBackground = (level, parent) => {
+    if (level === 1) {
+      parent
+      // create hills
+      .append(createBGElem('largeHill', 0))
+      .append(createBGElem('smallHill', 548))
+      .append(createBGElem('largeHill', 1562))
+      .append(createBGElem('smallHill', 2082))
+      .append(createBGElem('largeHill', 3128))
+      .append(createBGElem('smallHill', 3630))
+      .append(createBGElem('largeHill', 4684))
+      .append(createBGElem('smallHill', 5184))
+      .append(createBGElem('largeHill', 6208))
+      .append(createBGElem('smallHill', 6620))
 
-    // blocks
-    const blocksBox = $('#blocks')
-    blocks.push(Block('coin', blocksBox, 17, 5))
-    blocks.push(Block('brick', blocksBox, 21, 5))
-    blocks.push(Block('mushroom', blocksBox, 22, 5))
-    blocks.push(Block('brick', blocksBox, 23, 5))
-    blocks.push(Block('coin', blocksBox, 24, 5))
-    blocks.push(Block('brick', blocksBox, 25, 5))
-    blocks.push(Block('coin', blocksBox, 23, 9))
+      // bushes
+      .append(createBGElem('bush3', 408))
+      .append(createBGElem('bush1', 790))
+      .append(createBGElem('bush2', 1364))
+      .append(createBGElem('bush3', 1942))
+      .append(createBGElem('bush1', 2342))
+      .append(createBGElem('bush2', 2912))
+      .append(createBGElem('bush3', 3500))
+      .append(createBGElem('bush1', 3886))
+      .append(createBGElem('bush2', 4462))
+      .append(createBGElem('bush1', 5120))
+      .append(createBGElem('bush1', 5412))
+      .append(createBGElem('bush1', 6550))
+    }
+  }
 
-    // bricks over first hole
-    blocks.push(Block('brick', blocksBox, 79, 5))
-    blocks.push(Block('coin', blocksBox, 80, 5))
-    blocks.push(Block('brick', blocksBox, 81, 5))
-    blocks.push(Block('brick', blocksBox, 82, 9))
-    blocks.push(Block('brick', blocksBox, 83, 9))
-    blocks.push(Block('brick', blocksBox, 84, 9))
-    blocks.push(Block('brick', blocksBox, 85, 9))
-    blocks.push(Block('brick', blocksBox, 86, 9))
-    blocks.push(Block('brick', blocksBox, 87, 9))
-    blocks.push(Block('brick', blocksBox, 88, 9))
-    blocks.push(Block('brick', blocksBox, 89, 9))
+  const createLevel = (level) => {
+    if (level === 1) {
+      createBackground(level, DOM.backgrounds)
 
-    // bricks after first hole
-    blocks.push(Block('brick', blocksBox, 93, 9))
-    blocks.push(Block('brick', blocksBox, 94, 9))
-    blocks.push(Block('brick', blocksBox, 95, 9))
-    blocks.push(Block('coin', blocksBox, 96, 9))
-    blocks.push(Block('brick', blocksBox, 96, 5))
-    blocks.push(Block('brick', blocksBox, 102, 5))
-    blocks.push(Block('brick', blocksBox, 103, 5))
+      // create platforms
+      createPlatform(0, 0, 70, 2)
+      createPlatform(2336, 0, 15, 2)
+      createPlatform(2912, 0, 64, 2)
+      createPlatform(5024, 0, 55, 2)
+      // pipe
+      createPlatform(932, 64, 2, 2, 'pipe')
+      createPlatform(1248, 64, 2, 3, 'pipe')
+      createPlatform(1502, 64, 2, 4, 'pipe')
+      createPlatform(1852, 64, 2, 4, 'pipe')
+      createPlatform(5280, 64, 2, 2, 'pipe')
+      createPlatform(5792, 64, 2, 2, 'pipe')
 
-    // triangle coin area
-    blocks.push(Block('coin', blocksBox, 108, 5))
-    blocks.push(Block('coin', blocksBox, 111, 5))
-    blocks.push(Block('coin', blocksBox, 114, 5))
-    blocks.push(Block('coin', blocksBox, 111, 9))
+      // box mountain
+      createPlatform(4352, 64, 4, 1, 'box')
+      createPlatform(4384, 96, 3, 1, 'box')
+      createPlatform(4416, 128, 2, 1, 'box')
+      createPlatform(4448, 160, 1, 1, 'box')
+      createPlatform(4544, 160, 1, 1, 'box')
+      createPlatform(4544, 128, 2, 1, 'box')
+      createPlatform(4544, 96, 3, 1, 'box')
+      createPlatform(4544, 64, 4, 1, 'box')
 
-    // before block mountain
-    blocks.push(Block('brick', blocksBox, 120, 5))
-    blocks.push(Block('brick', blocksBox, 123, 9))
-    blocks.push(Block('brick', blocksBox, 124, 9))
-    blocks.push(Block('brick', blocksBox, 125, 9))
+      // box mountain 2
+      createPlatform(4800, 64, 5, 1, 'box')
+      createPlatform(4832, 96, 4, 1, 'box')
+      createPlatform(4864, 128, 3, 1, 'box')
+      createPlatform(4896, 160, 2, 1, 'box')
+      createPlatform(5024, 160, 1, 1, 'box')
+      createPlatform(5024, 128, 2, 1, 'box')
+      createPlatform(5024, 96, 3, 1, 'box')
+      createPlatform(5024, 64, 4, 1, 'box')
 
-    blocks.push(Block('brick', blocksBox, 130, 9))
-    blocks.push(Block('coin', blocksBox, 131, 9))
-    blocks.push(Block('coin', blocksBox, 132, 9))
-    blocks.push(Block('brick', blocksBox, 133, 9))
-    blocks.push(Block('brick', blocksBox, 131, 5))
-    blocks.push(Block('brick', blocksBox, 132, 5))
+      // end mountain
+      createPlatform(32 * 183, 32 * 2, 9, 1, 'box')
+      createPlatform(32 * 184, 32 * 3, 8, 1, 'box')
+      createPlatform(32 * 185, 32 * 4, 7, 1, 'box')
+      createPlatform(32 * 186, 32 * 5, 6, 1, 'box')
+      createPlatform(32 * 187, 32 * 6, 5, 1, 'box')
+      createPlatform(32 * 188, 32 * 7, 4, 1, 'box')
+      createPlatform(32 * 189, 32 * 8, 3, 1, 'box')
+      createPlatform(32 * 190, 32 * 9, 2, 1, 'box')
 
-    // before end
-    blocks.push(Block('brick', blocksBox, 170, 5))
-    blocks.push(Block('brick', blocksBox, 171, 5))
-    blocks.push(Block('coin', blocksBox, 172, 5))
-    blocks.push(Block('brick', blocksBox, 173, 5))
+      // flag
+      createPlatform(32 * 200, 64, 1, 1, 'box')
+      world.DOM.platforms.append($(`
+        <div id="endFlag">
+          <div class="flag"></div>
+          <div class="pole"></div>
+          <div class="top"></div>
+        </div>
+      `))
 
-    // create enemies
-    enemies.push(Enemy('goomba', $('#enemies'), 900))
-    enemies.push(Enemy('goomba', $('#enemies'), 1332))
-    enemies.push(Enemy('goomba', $('#enemies'), 1600))
-    enemies.push(Enemy('goomba', $('#enemies'), 1632))
+      // blocks
+      Block('coin', world, 17, 5)
+      Block('brick', world, 21, 5)
+      Block('mushroom', world, 22, 5)
+      Block('brick', world, 23, 5)
+      Block('coin', world, 24, 5)
+      Block('brick', world, 25, 5)
+      Block('coin', world, 23, 9)
+
+      // bricks over first hole
+      Block('brick', world, 79, 5)
+      Block('coin', world, 80, 5)
+      Block('brick', world, 81, 5)
+      Block('brick', world, 82, 9)
+      Block('brick', world, 83, 9)
+      Block('brick', world, 84, 9)
+      Block('brick', world, 85, 9)
+      Block('brick', world, 86, 9)
+      Block('brick', world, 87, 9)
+      Block('brick', world, 88, 9)
+      Block('brick', world, 89, 9)
+
+      // bricks after first hole
+      Block('brick', world, 93, 9)
+      Block('brick', world, 94, 9)
+      Block('brick', world, 95, 9)
+      Block('coin', world, 96, 9)
+      Block('brick', world, 96, 5)
+      Block('brick', world, 102, 5)
+      Block('brick', world, 103, 5)
+
+      // triangle coin area
+      Block('coin', world, 108, 5)
+      Block('coin', world, 111, 5)
+      Block('coin', world, 114, 5)
+      Block('coin', world, 111, 9)
+
+      // before block mountain
+      Block('brick', world, 120, 5)
+      Block('brick', world, 123, 9)
+      Block('brick', world, 124, 9)
+      Block('brick', world, 125, 9)
+
+      Block('brick', world, 130, 9)
+      Block('coin', world, 131, 9)
+      Block('coin', world, 132, 9)
+      Block('brick', world, 133, 9)
+      Block('brick', world, 131, 5)
+      Block('brick', world, 132, 5)
+
+      // before end
+      Block('brick', world, 170, 5)
+      Block('brick', world, 171, 5)
+      Block('coin', world, 172, 5)
+      Block('brick', world, 173, 5)
+
+      // create enemies
+      Enemy('goomba', world, 900)
+      Enemy('goomba', world, 1332)
+      Enemy('goomba', world, 1600)
+      Enemy('goomba', world, 1632)
+    }
   }
 
   const render = () => {
@@ -256,31 +210,22 @@ const createLevel = (level) => {
   }
 
   return {
-    platforms,
-    enemies,
+    ...world,
+    createLevel,
+    isLevelFinished: () => isLevelFinished,
+    finishLevel: () => {
+      isLevelFinished = true
+    },
     render
   }
 }
 
 // ------------------------------------------------------
 
-const findFloor = (x) => {
-  // get all platforms bounding box
-  const boxes = platforms.map(p => p[0].getBoundingClientRect())
-}
+const CloudFactory = (world) => {
 
-
-// ------------------------------------------------------
-
-const rand = (limit, start) => {
-  start = start | 1
-  return Math.floor((Math.random() * limit) + start)
-}
-
-const CloudFactory = (parent) => {
-
+  const parent = world.DOM.clouds
   const clouds = []
-  const $window = $(window)
 
   const createCloud = () => {
     const scrollLeft = $window.scrollLeft()
@@ -315,7 +260,7 @@ const CloudFactory = (parent) => {
 
     // remove cloud
     clouds.forEach(cloud => {
-      const scrollLeft = $(window).scrollLeft()
+      const scrollLeft = $window.scrollLeft()
       if (cloud.left <= scrollLeft - cloud.width) {
         cloud.remove()
         clouds.splice(clouds.indexOf(cloud), 1)

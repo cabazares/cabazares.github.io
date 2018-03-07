@@ -1,6 +1,6 @@
 
 
-const Block = (type, parent, x, y) => {
+const Block = (type, world, x, y) => {
   const SPRITE_BASE_URL = 'images/tiles/'
   const STATES = {
     ACTIVE: 'active',
@@ -9,6 +9,7 @@ const Block = (type, parent, x, y) => {
 
   let sprite = `brick.gif`
   let state = STATES.ACTIVE
+  let parent = world.DOM.blocks
 
   let elem = $(`<div class="hittable block ${type}"></div>`)
   parent.append(elem)
@@ -113,14 +114,17 @@ const Block = (type, parent, x, y) => {
         coin.remove()
       })
     } else if (type === 'mushroom') {
-      elements.push(Mushroom(parent, left, bottom + 32))
+      world.elements.push(Mushroom(parent, left, bottom + 32))
     }
   }
 
-  return {
+  const block = {
     elem,
     hit
   }
+  world.blocks.push(block)
+
+  return block
 }
 
 const Mushroom = (parent, x, y) => {

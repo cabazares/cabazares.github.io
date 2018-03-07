@@ -1,18 +1,44 @@
+
+// set up some globals
+let $window = $(window)
+let windowWidth = $window.width()
+let windowHeight = $window.height()
+
+$window.on('resize', () => {
+  windowWidth = $(window).width()
+  windowHeight = $(window).height()
+})
+
+const rand = (limit, start) => {
+  start = start | 1
+  return Math.floor((Math.random() * limit) + start)
+}
+
+const KEYS = {
+  LEFT: 37,
+  UP: 38,
+  RIGHT: 39,
+  DOWN: 40
+}
+
 $(document).ready(() => {
-
-  const $window = $(window)
-  let windowWidth = $window.width()
-  let windowHeight = $window.height()
-
   // set countdown
-  let countdownIntervat = setCountdown()
-
+  const deadline = '2018-03-12T15:00:00'
+  let countdownIntervat = setCountdown(deadline)
 
   // create world level 1
-  const world = createLevel(1)
+  const world = World({
+    playArea: $('#playArea'),
+    clouds: $('clouds'),
+    platforms: $('#platforms'),
+    backgrounds: $('#bg'),
+    blocks: $('#blocks')
+  })
+
+  world.createLevel(1)
 
   // setup player
-  const player = Mario($('#playArea'))
+  player = Mario(world)
 
   // render 30 times a second
   setInterval(() => {
@@ -32,5 +58,5 @@ $(document).ready(() => {
       const offset = scrollMin - playerX
       window.scrollTo(scrollLeft - offset, 0)
     }
-  }, 33)
+  }, 1000 / 24)
 })

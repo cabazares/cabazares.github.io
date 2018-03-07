@@ -110,6 +110,18 @@ html, body {
  height: 2px;
  bottom: -2px;
 }
+#player .playerLeft{
+ position: absolute;
+ width: 4px;
+ height: 26px;
+ left: -2px;
+}
+#player .playerRight{
+ position: absolute;
+ width: 4px;
+ height: 26px;
+ right: -2px;
+}
 
 .enemy {
   position: absolute;
@@ -182,6 +194,12 @@ html, body {
   background-position: 17px 17px;
 }
 
+.effect.fireworks {
+    width: 32px;
+    height: 32px;
+    background-image: url(images/tiles/fireworks.gif);
+}
+
 .element {
   position: absolute;
 }
@@ -192,6 +210,14 @@ html, body {
     width: 32px;
     height: 320px;
     position: absolute;
+}
+#endFlag .flag {
+  background-image: url(images/tiles/flag.png);
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  margin-left: -16px;
+  margin-top: 32px;
 }
 
 #endFlag .pole {
@@ -208,4 +234,14 @@ html, body {
   width: 32px;
   position: absolute;
   background-image: url('images/tiles/pole_tip.png');
+}
+
+#congrats {
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  background-image: url('images/background/congrats.png');
 }
