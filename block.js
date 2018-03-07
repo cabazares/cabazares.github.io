@@ -114,7 +114,11 @@ const Block = (type, world, x, y) => {
         coin.remove()
       })
     } else if (type === 'mushroom') {
-      world.elements.push(Mushroom(parent, left, bottom + 32))
+      if (world.mario.isSmall()) {
+        world.elements.push(Mushroom(parent, left, bottom + 32))
+      } else {
+        world.elements.push(Flower(parent, left, bottom + 32))
+      }
     }
   }
 
@@ -125,6 +129,22 @@ const Block = (type, world, x, y) => {
   world.blocks.push(block)
 
   return block
+}
+
+const Flower = (parent, x, y) => {
+  const elem = $(`<div class="flower element collider"></div>`)
+  parent.append(elem)
+
+  // animate entrance
+  elem.css({
+    left: x,
+    bottom: y,
+    height: 0
+  }).animate({
+    height: 32
+  }, 500)
+
+  return {}
 }
 
 const Mushroom = (parent, x, y) => {

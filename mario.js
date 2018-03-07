@@ -95,7 +95,7 @@ const Mario = (world) => {
         } else {
           width = 32
           height = 64
-          sprite = 'big_walk1.gif'
+          sprite = (isFire())? 'fire_walk1.gif' : 'big_walk1.gif'
         }
       break
 
@@ -107,7 +107,7 @@ const Mario = (world) => {
         } else {
           width = 32
           height = 64
-          sprite = 'big_jump.gif'
+          sprite = (isFire())? 'fire_jump.gif' : 'big_jump.gif'
         }
       break
 
@@ -126,7 +126,7 @@ const Mario = (world) => {
         } else {
           width = 32
           height = 64
-          sprite = 'big_stand.gif'
+          sprite = (isFire())? 'fire_stand.gif' : 'big_stand.gif'
         }
     }
     elem.css({
@@ -352,7 +352,6 @@ const Mario = (world) => {
     const elementCollision = elem.collision('.element')
     if (elementCollision.length) {
       if (elementCollision.is('.mushroom') && power === POWER_STATES.NORMAL) {
-
         elementCollision.remove()
         isAnimating = true
         elem
@@ -386,6 +385,16 @@ const Mario = (world) => {
         })
         .animate({opacity:1}, 60, () => {
           power = POWER_STATES.SUPER
+          onChangeState()
+          isAnimating = false
+        })
+      }
+      else if (elementCollision.is('.flower') && !isFire()) {
+        elementCollision.remove()
+        isAnimating = true
+        elem
+        .animate({opacity:1}, 60, () => {
+          power = POWER_STATES.FIRE
           onChangeState()
           isAnimating = false
         })
@@ -458,14 +467,25 @@ const Mario = (world) => {
     y = newY
   }
 
+  const isSmall = () => {
+    return power === POWER_STATES.NORMAL
+  }
+
+  const isFire = () => {
+    return power === POWER_STATES.FIRE
+  }
 
 
-  return {
+  const mario = {
     position,
     setX,
     setY,
+    isSmall,
 
     onChangeState,
     render
   }
+  world.mario = mario
+
+  return mario
 }

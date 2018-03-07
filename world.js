@@ -144,7 +144,7 @@ const World = (DOM) => {
 
       // bricks over first hole
       Block('brick', world, 79, 5)
-      Block('coin', world, 80, 5)
+      Block('mushroom', world, 80, 5)
       Block('brick', world, 81, 5)
       Block('brick', world, 82, 9)
       Block('brick', world, 83, 9)
@@ -168,7 +168,7 @@ const World = (DOM) => {
       Block('coin', world, 108, 5)
       Block('coin', world, 111, 5)
       Block('coin', world, 114, 5)
-      Block('coin', world, 111, 9)
+      Block('mushroom', world, 111, 9)
 
       // before block mountain
       Block('brick', world, 120, 5)
@@ -205,11 +205,13 @@ const World = (DOM) => {
     })
 
     elements.forEach(e => {
-      e.render()
+      if (e && e.render) {
+        e.render()
+      }
     })
   }
 
-  return {
+  Object.assign(world, {
     ...world,
     createLevel,
     isLevelFinished: () => isLevelFinished,
@@ -217,7 +219,9 @@ const World = (DOM) => {
       isLevelFinished = true
     },
     render
-  }
+  })
+
+  return world
 }
 
 // ------------------------------------------------------

@@ -204,6 +204,13 @@ html, body {
   position: absolute;
 }
 
+.element.flower {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background-image: url(images/tiles/flower.gif);
+}
+
 #endFlag {
     left: 6400px;
     bottom: 96px;
