@@ -12,9 +12,12 @@ const World = (DOM) => {
     elements
   }
 
+  // setup player
+  mario = Mario(world)
   const cloudFactory = CloudFactory(world)
 
-  // level state
+  // game state
+  let isGameRunning = false
   let isLevelFinished = false
   let flagPosition = NaN
 
@@ -31,8 +34,17 @@ const World = (DOM) => {
       height
     })
 
-    platforms.push(elem)
     DOM.platforms.append(elem)
+
+    platforms.push({
+      elem,
+      left,
+      bottom,
+      getX: () => left,
+      getY: () => bottom,
+      width,
+      height
+    })
 
     return elem
   }
@@ -194,13 +206,55 @@ const World = (DOM) => {
       Enemy('goomba', world, 1332)
       Enemy('goomba', world, 1600)
       Enemy('goomba', world, 1632)
+
+      // enemies over first hole
+      Enemy('goomba', world, 2592, 320)
+      Enemy('goomba', world, 2656, 320)
+
+      // after second hole
+      Enemy('goomba', world, 3200)
+      Enemy('goomba', world, 3264)
+
+      // after triangle coin area
+      Enemy('koopa', world, 109 * 32)
+      Enemy('goomba', world, 116 * 32)
+      Enemy('goomba', world, 118 * 32)
+
+      // before mountain block
+      Enemy('goomba', world, 126 * 32)
+      Enemy('goomba', world, 128 * 32)
+      Enemy('goomba', world, 130 * 32)
+      Enemy('goomba', world, 132 * 32)
+
+      // before final mountain
+      Enemy('goomba', world, 176 * 32)
+      Enemy('goomba', world, 178 * 32)
     }
   }
 
+  const activateEnemies = () => {
+    // activate enemies that come in to the screen
+    const scrollLeft = $window.scrollLeft()
+    enemies.filter(e => {
+      return !e.isActive() && e.getX() <= (scrollLeft + windowWidth)
+    }).map(e => {
+      e.activate()
+    })
+  }
+
   const render = () => {
+    // pause game
+    if (!isGameRunning) {
+      return
+    }
+
+    mario.render()
     cloudFactory.render()
 
     enemies.forEach(e => {
+      if (!e.isActive()) {
+        return
+      }
       e.render()
     })
 
@@ -209,15 +263,41 @@ const World = (DOM) => {
         e.render()
       }
     })
+
+    // scroll based on playet position
+    const scrollLeft = $window.scrollLeft()
+    const scrollMax = (windowWidth * 0.5) + scrollLeft
+    const playerX = mario.getX()
+    if (playerX >= scrollMax) {
+      const offset = (playerX - scrollMax)
+      window.scrollTo(scrollLeft + offset, 0)
+
+      activateEnemies()
+    }
+    const scrollMin = (windowWidth * 0.4) + scrollLeft
+    if (playerX <= scrollMin && scrollLeft > 0) {
+      const offset = scrollMin - playerX
+      window.scrollTo(scrollLeft - offset, 0)
+    }
   }
 
   Object.assign(world, {
-    ...world,
-    createLevel,
+    isGameRunning: () => isGameRunning,
+    startGame: () => {
+      isGameRunning = true
+      activateEnemies()
+    },
+    pauseGame: () => {
+      isGameRunning = false
+    },
     isLevelFinished: () => isLevelFinished,
     finishLevel: () => {
       isLevelFinished = true
     },
+
+    mario,
+    createLevel,
+
     render
   })
 

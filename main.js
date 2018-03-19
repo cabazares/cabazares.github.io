@@ -14,6 +14,37 @@ const rand = (limit, start) => {
   return Math.floor((Math.random() * limit) + start)
 }
 
+// determine if two elements has an overlap
+const hasOverlap = (elemA, elemB, transX, transY) => {
+  transX = transX || 0
+  transY = transY || 0
+  const domElemA = (elemA instanceof jQuery)? elemA[0] : elemA
+  const domElemB = (elemB instanceof jQuery)? elemB[0] : elemB
+  const rect1 = domElemA.getBoundingClientRect()
+  const rect2 = domElemB.getBoundingClientRect()
+
+  const left = rect1.left + transX
+  const top = rect1.top + transY
+  const width = rect1.width
+  const height = rect1.height
+
+  return boundsOverlap(left, top, width, height,
+                       rect2.left, rect2.top, rect2.width, rect2.height)
+}
+
+// check if two rectangles overlap
+const boundsOverlap = (x1, y1, w1, h1, x2, y2, w2, h2) => {
+  return !(x1 + w1 < x2 || x1 > x2 + w2 || y1 + h1 < y2 || y1 > y2 + h2)
+}
+
+// get all elements from a list that overlap with a given element
+const getOverlaps = (elem, items, transX, transY) => {
+  return items.filter(p => {
+    const item = (p.elem)? p.elem : p
+    return hasOverlap(elem, item, transX, transY)? p : false
+  })
+}
+
 const KEYS = {
   LEFT: 37,
   UP: 38,
@@ -24,7 +55,7 @@ const KEYS = {
 $(document).ready(() => {
   // set countdown
   const deadline = '2018-03-12T15:00:00'
-  let countdownIntervat = setCountdown(deadline)
+  let countdownInterval = setCountdown(deadline)
 
   // create world level 1
   const world = World({
@@ -32,31 +63,15 @@ $(document).ready(() => {
     clouds: $('clouds'),
     platforms: $('#platforms'),
     backgrounds: $('#bg'),
-    blocks: $('#blocks')
+    blocks: $('#blocks'),
+    enemies: $('#enemies')
   })
 
   world.createLevel(1)
 
-  // setup player
-  player = Mario(world)
+  MainLoop.setDraw(world.render).start()
 
-  // render 30 times a second
-  setInterval(() => {
-    player.render()
-    world.render()
+  // start game
+  world.startGame()
 
-    // scroll based on playet position
-    const scrollLeft = $window.scrollLeft()
-    const scrollMax = (windowWidth * 0.8) + scrollLeft
-    const playerX = player.position().x
-    if (playerX >= scrollMax) {
-      const offset = (playerX - scrollMax)
-      window.scrollTo(scrollLeft + offset, 0)
-    }
-    const scrollMin = (windowWidth * 0.2) + scrollLeft
-    if (playerX <= scrollMin && scrollLeft > 0) {
-      const offset = scrollMin - playerX
-      window.scrollTo(scrollLeft - offset, 0)
-    }
-  }, 1000 / 24)
 })

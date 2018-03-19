@@ -98,25 +98,34 @@ html, body {
   position: absolute;
   background-repeat: no-repeat;
 }
-#player .playerHead{
+#player .playerHead {
  position: absolute;
- width: 26px;
+ width: 22px;
+ left: 2px;
  height: 2px;
  top: -2px;
+ background-color:red;
 }
-#player .playerFoot{
+#player.super .playerHead,
+#player.fire .playerHead {
+   width: 26px;
+   left: 3px;
+}
+
+#player .playerFoot {
+ background-color: blue;
  position: absolute;
  width: 26px;
  height: 2px;
  bottom: -2px;
 }
-#player .playerLeft{
+#player .playerLeft {
  position: absolute;
  width: 4px;
  height: 26px;
  left: -2px;
 }
-#player .playerRight{
+#player .playerRight {
  position: absolute;
  width: 4px;
  height: 26px;
@@ -127,12 +136,14 @@ html, body {
   position: absolute;
 }
 
-.enemy .weakness {
+.enemy .foot {
+  background-color: red;
   position: absolute;
-  top: -5px;
+  bottom: -2px;
   width: 32px;
-  height: 5px;
+  height: 2px;
 }
+
 
 .block {
   position: absolute;

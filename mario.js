@@ -24,7 +24,7 @@ const Mario = (world) => {
   let isAnimating = false
   let width = 26
   let height = 32
-  let speed = 8
+  let speed = 4
   let state = STATES.STAND
   let power = POWER_STATES.NORMAL
   let direction = DIRECTION.RIGHT
@@ -49,16 +49,12 @@ const Mario = (world) => {
 
   const parent = world.DOM.playArea
   const elem = $(`<div id="player">` +
-                 `<div class="playerHead"></div>` +
+                 `<div class="playerhead"></div>` +
                  `<div class="playerFoot"></div>` +
-                 `<div class="playerLeft"></div>` +
-                 `<div class="playerRight"></div>` +
                  `</div>`)
   parent.append(elem)
   const head = elem.find('.playerHead')
   const foot = elem.find('.playerFoot')
-  const pLeft = elem.find('.playerLeft')
-  const pRight = elem.find('.playerRight')
 
   elem.css({
     left:x,
@@ -129,6 +125,11 @@ const Mario = (world) => {
           sprite = (isFire())? 'fire_stand.gif' : 'big_stand.gif'
         }
     }
+
+    // switch css class
+    elem.removeClass(Object.values(POWER_STATES).filter(x => x !== power))
+    elem.addClass(power)
+
     elem.css({
       'background-image': `url('${SPRITE_BASE_URL + sprite}')`,
       transform: `scaleX(${(direction === DIRECTION.RIGHT)? 1 : -1})`,
@@ -254,53 +255,52 @@ const Mario = (world) => {
     onRender()
 
     // collisions ----------------------------
-    // left or right collision
-    const platformCollision = elem.collision('.platform,.block')
-    if (platformCollision.length) {
-      x = prevX
-      /*
-      const platform = platformCollision
-      const platformX = platform.css('left')
-      if (x < platformX) {
-        x = platformX - width
-      } else {
-        x = platformX + platform.width()
-      }
-      */
-    }
 
     // collision with ground
-    const groundCollision = foot.collision('.platform,.block')
+    const groundCollision = getOverlaps(foot,
+                                        world.platforms.concat(world.blocks))
     onGround = groundCollision.length > 0
     if (groundCollision.length && state != STATES.JUMP) {
-      // end drop
-      const floor = groundCollision
+      // end drop and set position to follors position
+      const floor = groundCollision[0]
       velocityY = 0
-      y = parseInt(floor.css('bottom')) + floor.height()
+      y = floor.getY() + floor.height
     }
 
-    // head collision
-    const headCollision = head.collision('.block')
+    // check if head hit any block
+    const headCollision = getOverlaps(head, world.blocks)
     if (headCollision.length) {
       // limit position
-      const block = headCollision
-      velocityY = 0
-      y = parseInt(block.css('bottom')) - height - 2
+      headCollision.map((block, i) => {
+        if (i === 0) { // only move mario down once
+          velocityY = 0
+          // minus 2 here to immediately remove collision
+          y = block.getY() - height - 2
+        }
 
-      // tell block it was hit
-      const hitBlock = world.blocks.filter(b => {
-        return b.elem[0] === block[0]
-      })[0]
-      hitBlock.hit(power)
+        // tell block it was hit
+        block.hit(power)
+      })
     }
 
+    //  left or right collision
+    /*
+    const platformCollision = getOverlaps(elem,
+                                          world.platforms.concat(world.blocks))
+    if (platformCollision.length) {
+      platformCollision.map((platform, i) => {
+        const rects = getRects(elem, platform.elem)
+        // if mario is on the left of the platform, push back
+        x += (rects.rect1.left < rects.rect2.left)? -1 : 1
+      })
+    }
+    */
+
+
     // check if killed enemy
-    const enemyKills = foot.collision('.enemy')
+    const enemyKills = getOverlaps(foot, world.enemies)
     if (enemyKills.length) {
-      const hitEnemy = world.enemies.filter(b => {
-        return b.elem[0] === enemyKills[0]
-      })[0]
-      hitEnemy.die()
+      enemyKills.map(e => e.die())
 
       // make mario jump after killing
       setState(STATES.JUMP)
@@ -308,7 +308,7 @@ const Mario = (world) => {
     }
 
     // check collision with enemies
-    const enemyHits = elem.collision('.enemy')
+    const enemyHits = getOverlaps(elem, world.enemies)
     if (!enemyKills.length && enemyHits.length && state !== STATES.DIE) {
       if (power === POWER_STATES.NORMAL) {
         die()
@@ -349,56 +349,58 @@ const Mario = (world) => {
       }
     }
 
-    const elementCollision = elem.collision('.element')
+    const elementCollision = getOverlaps(elem, world.elements)
     if (elementCollision.length) {
-      if (elementCollision.is('.mushroom') && power === POWER_STATES.NORMAL) {
-        elementCollision.remove()
-        isAnimating = true
-        elem
-        // big
-        .animate({opacity:1}, 0, () => {
-          elem.css({
-            height: height + 32,
-            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
+      elementCollision.map(element => {
+        if (element.elem.is('.mushroom') && power === POWER_STATES.NORMAL) {
+          element.elem.remove()
+          isAnimating = true
+          elem
+          // big
+          .animate({opacity:1}, 0, () => {
+            elem.css({
+              height: height + 32,
+              'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
+            })
           })
-        })
-        // small
-        .animate({opacity:1}, 60, () => {
-          elem.css({
-            height,
-            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
+          // small
+          .animate({opacity:1}, 60, () => {
+            elem.css({
+              height,
+              'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
+            })
           })
-        })
-        // big
-        .animate({opacity:1}, 60, () => {
-          elem.css({
-            height: height + 32,
-            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
+          // big
+          .animate({opacity:1}, 60, () => {
+            elem.css({
+              height: height + 32,
+              'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
+            })
           })
-        })
-        // small
-        .animate({opacity:1}, 60, () => {
-          elem.css({
-            height,
-            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
+          // small
+          .animate({opacity:1}, 60, () => {
+            elem.css({
+              height,
+              'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
+            })
           })
-        })
-        .animate({opacity:1}, 60, () => {
-          power = POWER_STATES.SUPER
-          onChangeState()
-          isAnimating = false
-        })
-      }
-      else if (elementCollision.is('.flower') && !isFire()) {
-        elementCollision.remove()
-        isAnimating = true
-        elem
-        .animate({opacity:1}, 60, () => {
-          power = POWER_STATES.FIRE
-          onChangeState()
-          isAnimating = false
-        })
-      }
+          .animate({opacity:1}, 60, () => {
+            power = POWER_STATES.SUPER
+            onChangeState()
+            isAnimating = false
+          })
+        }
+        else if (element.elem.is('.flower') && !isFire()) {
+          element.elem.remove()
+          isAnimating = true
+          elem
+          .animate({opacity:1}, 60, () => {
+            power = POWER_STATES.FIRE
+            onChangeState()
+            isAnimating = false
+          })
+        }
+      })
     }
 
     // gravity --------------------
@@ -459,10 +461,16 @@ const Mario = (world) => {
     }
   }
 
+  const getX = () => {
+    return x
+  }
   const setX = (newX) => {
     x = newX
   }
 
+  const getY = () => {
+    return y
+  }
   const setY = (newY) => {
     y = newY
   }
@@ -478,14 +486,15 @@ const Mario = (world) => {
 
   const mario = {
     position,
+    getX,
     setX,
+    getY,
     setY,
     isSmall,
 
     onChangeState,
     render
   }
-  world.mario = mario
 
   return mario
 }
