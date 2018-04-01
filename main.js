@@ -24,7 +24,7 @@ const hasOverlap = (elemA, elemB, transX, transY) => {
   const rect2 = domElemB.getBoundingClientRect()
 
   const left = rect1.left + transX
-  const top = rect1.top + transY
+  const top = rect1.top - transY // subtract since axis origin is bottom left
   const width = rect1.width
   const height = rect1.height
 
@@ -45,6 +45,8 @@ const getOverlaps = (elem, items, transX, transY) => {
   })
 }
 
+const TILE_WIDTH = TILE_HEIGHT = 32
+
 const KEYS = {
   LEFT: 37,
   UP: 38,
@@ -60,7 +62,7 @@ $(document).ready(() => {
   // create world level 1
   const world = World({
     playArea: $('#playArea'),
-    clouds: $('clouds'),
+    clouds: $('#clouds'),
     platforms: $('#platforms'),
     backgrounds: $('#bg'),
     blocks: $('#blocks'),
@@ -69,7 +71,11 @@ $(document).ready(() => {
 
   world.createLevel(1)
 
-  MainLoop.setDraw(world.render).start()
+  MainLoop
+    .setBegin(world.handleInput)
+    .setUpdate(world.update)
+    .setDraw(world.render)
+    .start()
 
   // start game
   world.startGame()

@@ -1,5 +1,7 @@
 
 const World = (DOM) => {
+  const doc = $(document)
+
   const platforms = []
   const enemies = []
   const blocks = []
@@ -9,7 +11,8 @@ const World = (DOM) => {
     platforms,
     enemies,
     blocks,
-    elements
+    elements,
+    clouds
   }
 
   // setup player
@@ -242,6 +245,69 @@ const World = (DOM) => {
     })
   }
 
+  // handle key presses
+  const keyMap = {}
+  let onkeydown, onkeyup
+  onkeydown = onkeyup = (e) => {
+    keyMap[e.keyCode] = e.type == 'keydown'
+  }
+  doc.on('keydown', onkeydown)
+  doc.on('keyup', onkeyup)
+
+  const handleInput = () => {
+    // send keypress status to elements
+    mario.handleInput(keyMap)
+  }
+
+  const update = (delta) => {
+    // pause game
+    if (!isGameRunning) {
+      return
+    }
+
+    // win state -------------------------
+    if (world.isLevelFinished()) {
+      if (Math.random() <= 0.2) {
+        createFireworks()
+      }
+    }
+
+    // check win -------------------------
+    const flagPosition = 6400
+    const marioPos = mario.position()
+    if (!world.isLevelFinished() && marioPos.x >= flagPosition) {
+      const pole = $('#endFlag')
+      const maxDist = pole.height() - 64
+      const flag = $('#endFlag .flag')
+      let distance = windowHeight - pole.position().top - marioPos.y - 32
+      distance = (distance <= 0)? 0 : distance
+      distance = (distance > maxDist)? maxDist : distance
+
+      flag.animate({
+        top: distance
+      }, 500, () => {
+        $('#timerBox').remove()
+        const congratsElem = $('<div id="congrats">')
+        congratsElem.hide()
+        $('body').append(congratsElem)
+        congratsElem.slideDown()
+      })
+      world.finishLevel()
+    }
+
+
+    // update everything in the world
+    mario.update()
+
+    elements.forEach(e => {
+      if (e.update) {
+        e.update()
+      }
+    })
+
+    cloudFactory.update()
+  }
+
   const render = () => {
     // pause game
     if (!isGameRunning) {
@@ -281,11 +347,29 @@ const World = (DOM) => {
     }
   }
 
+  const createFireworks = () => {
+    const scrollLeft = $(window).scrollLeft()
+    const top = rand(windowHeight * 0.8, 50)
+    const left = scrollLeft + rand(windowWidth)
+    const firework = $(`<div class="effect fireworks"></div>`).css({
+        top,
+        left
+    })
+    parent.append(firework)
+
+    setTimeout(() => {
+      firework.remove()
+    }, 200)
+
+    return firework
+  }
+
   Object.assign(world, {
     isGameRunning: () => isGameRunning,
     startGame: () => {
-      isGameRunning = true
+      mario.reset()
       activateEnemies()
+      isGameRunning = true
     },
     pauseGame: () => {
       isGameRunning = false
@@ -298,6 +382,8 @@ const World = (DOM) => {
     mario,
     createLevel,
 
+    handleInput,
+    update,
     render
   })
 
@@ -328,12 +414,14 @@ const CloudFactory = (world) => {
     return cloud
   }
 
-  const render = () => {
+  const update = (delta) => {
     // chance to create cloud
     if (Math.random() <= 0.003) {
       createCloud()
     }
+  }
 
+  const render = () => {
     // move clouds
     clouds.forEach(cloud => {
       cloud.left = cloud.left - rand(2, 0)
@@ -354,6 +442,7 @@ const CloudFactory = (world) => {
 
   return {
     clouds,
+    update,
     render
   }
 }

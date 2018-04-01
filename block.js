@@ -118,7 +118,7 @@ const Block = (type, world, x, y) => {
       })
     } else if (type === 'mushroom') {
       if (world.mario.isSmall()) {
-        world.elements.push(Mushroom(world, left, bottom + 32))
+        world.elements.push(Mushroom(world, left, bottom + 32 + 1))
       } else {
         world.elements.push(Flower(world, left, bottom + 32))
       }
@@ -145,6 +145,9 @@ const Flower = (world, x, y) => {
   const elem = $(`<div class="flower element collider"></div>`)
   let parent = world.DOM.blocks
   parent.append(elem)
+
+  const width = 32
+  const height = 32
 
   // animate entrance
   elem.css({
@@ -182,6 +185,7 @@ const Mushroom = (world, x, y) => {
   let width = 32
   let height = 32
   let moveSpeed = 2
+  let fallSpeed = 5
   const elem = $(`<div class="mushroom element collider"></div>`)
   elem.css({
     'background-image': `url('${SPRITE_BASE_URL + sprite}')`,
@@ -202,41 +206,47 @@ const Mushroom = (world, x, y) => {
   elem.css({
     height: 0
   }).animate({
-    height
+    height: height
   }, 500, () => {
     isAnimating = false
   })
+
+  const update = (delta) => {
+    if (isAnimating) {
+      return
+    }
+
+    const collidable = world.platforms.concat(world.blocks)
+
+    // move horizontal
+    const transX = (direction === DIRECTION.LEFT)? -moveSpeed : moveSpeed
+    const collisions = getOverlaps(elem, collidable, transX, 0)
+    if (collisions.length) {
+      const hit = collisions[0]
+      const hitX = hit.getX()
+      // move mushroom to side
+      x = (x >= hitX)? hitX + hit.width - width - 1 : hitX - width - 1
+      
+      // change direction
+      direction = (direction === DIRECTION.LEFT)? DIRECTION.RIGHT : DIRECTION.LEFT
+    }
+    else {
+      x += (direction === DIRECTION.LEFT)? -moveSpeed : moveSpeed
+    }
+
+    // try gravity
+    const platforms = getOverlaps(elem, collidable, transX, -fallSpeed)
+    if (!platforms.length) {
+      y += -fallSpeed
+    }
+  }
 
   const render = () => {
     if (isAnimating) {
       return
     }
 
-    // try gravity
-    y -= 7
-    elem.css({bottom: y})
-    const platforms = getOverlaps(elem, world.platforms.concat(world.blocks))
-    if (platforms.length) {
-      y += 7
-      elem.css({bottom: y})
-    }
-
-    // should change direction
-    const collisions = getOverlaps(elem, world.platforms.concat(world.blocks))
-
-    console.log(collisions)
-    if (collisions.filter(e => platforms.indexOf(e) < 0).length) {
-      console.log(collections)
-      direction = (direction === DIRECTION.LEFT)? DIRECTION.RIGHT : DIRECTION.LEFT
-    }
-    if (direction === DIRECTION.LEFT) {
-      x -= moveSpeed
-    } else {
-      x += moveSpeed
-    }
     move()
-
-
     prevX = x
     prevY = y
   }
@@ -252,6 +262,7 @@ const Mushroom = (world, x, y) => {
     width,
     height,
 
+    update,
     render
   }
 }

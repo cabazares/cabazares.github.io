@@ -97,6 +97,8 @@ html, body {
 #player {
   position: absolute;
   background-repeat: no-repeat;
+  width: 26px;
+  height: 32px;
 }
 #player .playerHead {
  position: absolute;
@@ -104,7 +106,6 @@ html, body {
  left: 2px;
  height: 2px;
  top: -2px;
- background-color:red;
 }
 #player.super .playerHead,
 #player.fire .playerHead {
@@ -113,7 +114,6 @@ html, body {
 }
 
 #player .playerFoot {
- background-color: blue;
  position: absolute;
  width: 26px;
  height: 2px;
@@ -132,12 +132,88 @@ html, body {
  right: -2px;
 }
 
+#player.normal.jump {
+  width: 34px;
+  height: 32px;
+}
+
+#player.super, #player.fire {
+  width: 32px;
+  height: 64px;
+}
+
+#player.die {
+  width: 30px;
+  height: 28px;
+  background-image: url('images/mario/dead.gif') !important;
+}
+
+#player.stand, #player.normal {
+  background-image: url('images/mario/stand.gif');
+}
+
+#player.stand.super {
+  background-image: url('images/mario/big_stand.gif');
+}
+
+#player.stand.fire {
+  background-image: url('images/mario/fire_stand.gif');
+}
+
+#player.jump {
+  background-image: url('images/mario/jump.gif');
+}
+
+#player.jump.super {
+  background-image: url('images/mario/big_jump.gif');
+}
+
+#player.jump.fire {
+  background-image: url('images/mario/fire_jump.gif');
+}
+
+#player.walk1 {
+  background-image: url('images/mario/walk1.gif');
+}
+
+#player.walk1.super {
+  background-image: url('images/mario/big_walk1.gif');
+}
+
+#player.walk1.fire {
+  background-image: url('images/mario/fire_walk1.gif');
+}
+
+#player.walk2 {
+  background-image: url('images/mario/walk2.gif');
+}
+
+#player.walk2.super {
+  background-image: url('images/mario/big_walk2.gif');
+}
+
+#player.walk2.fire {
+  background-image: url('images/mario/fire_walk2.gif');
+}
+
+#player.walk3 {
+  background-image: url('images/mario/walk3.gif');
+}
+
+#player.walk3.super {
+  background-image: url('images/mario/big_walk3.gif');
+}
+
+#player.walk3.fire {
+  background-image: url('images/mario/fire_walk3.gif');
+}
+
+
 .enemy {
   position: absolute;
 }
 
 .enemy .foot {
-  background-color: red;
   position: absolute;
   bottom: -2px;
   width: 32px;
