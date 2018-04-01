@@ -2,10 +2,10 @@
 const World = (DOM) => {
   const doc = $(document)
 
-  const platforms = []
-  const enemies = []
-  const blocks = []
-  const elements = []
+  let platforms = []
+  let enemies = []
+  let blocks = []
+  let elements = []
   const world = {
     DOM,
     platforms,
@@ -101,10 +101,30 @@ const World = (DOM) => {
   }
 
   const begin = () => {
-    AudioManager.playBG()
+    cloudFactory.begin()
+
+    resetLevel()
+  }
+  
+  const resetLevel = () => {
+    timePassed = 0
+
+    // reset dom
+    DOM.clouds.empty()
+    DOM.platforms.empty()
+    DOM.backgrounds.empty()
+    DOM.blocks.empty()
+    DOM.enemies.empty()
+
+    // reset variables
+    platforms = world.platforms = []
+    enemies = world.enemies = []
+    blocks = world.blocks = []
+    elements = world.elements = []
 
     createLevel(1)
-    cloudFactory.begin()
+
+    AudioManager.playBG()
   }
 
   const createLevel = (level) => {
@@ -300,6 +320,7 @@ const World = (DOM) => {
       distance = (distance <= 0)? 0 : distance
       distance = (distance > maxDist)? maxDist : distance
 
+      AudioManager.playSound('flagpole')
       flag.animate({
         top: distance
       }, 500, () => {
@@ -438,6 +459,7 @@ const World = (DOM) => {
 
     mario,
     begin,
+    resetLevel,
 
     collectCoin,
     addScore,

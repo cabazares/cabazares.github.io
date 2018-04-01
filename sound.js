@@ -2,6 +2,7 @@
 const AudioManager = (() => {
 
   const level1BG = new Audio("audio/01-main-theme-overworld.mp3")
+  level1BG.loop = true
   level1BG.volume = 0.8
   
   const effects = {
@@ -13,6 +14,7 @@ const AudioManager = (() => {
     break: new Audio("audio/Break.wav"),
     bump: new Audio("audio/Bump.wav"),
     jump: new Audio("audio/Jump.wav"),
+    flagpole: new Audio("audio/Flagpole.wav"),
   }
   
 

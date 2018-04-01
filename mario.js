@@ -388,7 +388,10 @@ const Mario = (world) => {
     }, 400).animate({
       bottom: -height
     }, 400, () => {
-      setTimeout(reset, 2000)
+      setTimeout(() => {
+        world.resetLevel()
+        reset()
+      }, 2000)
     })
   }
 
@@ -405,7 +408,6 @@ const Mario = (world) => {
     power = POWER_STATES.NORMAL
     onChangeState()
     isAnimating = false
-    AudioManager.playBG()
   }
 
   const position = () => {
