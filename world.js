@@ -20,9 +20,18 @@ const World = (DOM) => {
   const cloudFactory = CloudFactory(world)
 
   // game state
+  let score = 0
+  let coins = 0
+  let timePassed = 0
   let isGameRunning = false
   let isLevelFinished = false
   let flagPosition = NaN
+
+  // hud
+  const bgElem = $('#bg')
+  const timeHUD = $('#worldTime .time')
+  const scoreHUD = $('#scoreBox .score')
+  const coinsHUD = $('#scoreBox .coins')
 
   const createPlatform = (left, bottom, width, height, type) => {
     type = type || 'floor1'
@@ -269,6 +278,7 @@ const World = (DOM) => {
     if (!isGameRunning) {
       return
     }
+    timePassed += delta
 
     // win state -------------------------
     if (world.isLevelFinished()) {
@@ -335,7 +345,7 @@ const World = (DOM) => {
       }
     })
 
-    // scroll based on playet position
+    // scroll based on player position
     const scrollLeft = $window.scrollLeft()
     const scrollMax = (windowWidth * 0.5) + scrollLeft
     const playerX = mario.getX()
@@ -350,6 +360,26 @@ const World = (DOM) => {
       const offset = scrollMin - playerX
       window.scrollTo(scrollLeft - offset, 0)
     }
+
+    // update HUD
+    const gameTime = Math.round(timePassed / 1000)
+    timeHUD.text(gameTime)
+
+    let scoreString = score.toString()
+    if (scoreString.padStart) {
+      scoreString = scoreString.padStart(6, "0")
+    } else {
+      scoreString = ("000000" + scoreString).slice(-6)
+    }
+    scoreHUD.text(scoreString)
+
+    let coinsString = coins.toString()
+    if (coinsString.padStart) {
+      coinsString = coinsString.padStart(2, "0")
+    } else {
+      coinsString = ("00" + coinsString).slice(-2)
+    }
+    coinsHUD.text('x' + coinsString)
   }
 
   const createFireworks = () => {
@@ -369,6 +399,26 @@ const World = (DOM) => {
     return firework
   }
 
+  const collectCoin = () => {
+    coins += 1
+  }
+
+  const addScore = (x, y, points=100) => {
+    const floatText = $(`<div class="floatScore">${points}</div>`)
+    floatText.css({
+      left: x,
+      bottom: y
+    })
+    bgElem.append(floatText)
+    floatText.animate({
+      bottom: y + TILE_HEIGHT * 2
+    }, 1000, () => {
+      floatText.remove()
+    })
+
+    score += points
+  }
+
   Object.assign(world, {
     isGameRunning: () => isGameRunning,
     startGame: () => {
@@ -386,6 +436,9 @@ const World = (DOM) => {
 
     mario,
     begin,
+
+    collectCoin,
+    addScore,
 
     handleInput,
     update,
@@ -428,7 +481,7 @@ const CloudFactory = (world) => {
 
   const update = (delta) => {
     // chance to create cloud
-    if (Math.random() <= 0.006) {
+    if (Math.random() <= 0.003) {
       createCloud()
     }
   }

@@ -115,6 +115,10 @@ const Block = (type, world, x, y) => {
         bottom: bottom + 32
       }, () => {
         coin.remove()
+
+        // add to coin count
+        world.addScore(left, bottom + TILE_HEIGHT * 2)
+        world.collectCoin()
       })
     } else if (type === 'mushroom') {
       if (world.mario.isSmall()) {

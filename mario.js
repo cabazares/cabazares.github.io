@@ -251,7 +251,7 @@ const Mario = (world) => {
       // also check y positions to prevent bug where
       // we get hit on characther change size due to jump
       else if (y < hit.getY()) {
-        let currentHeight = TILE_WIDTH
+        let currentHeight = TILE_HEIGHT
         currentHeight *= (state === STATES.NORMAL)? 1 : 2
         const newY = hit.getY() - currentHeight - 2
 
@@ -296,6 +296,9 @@ const Mario = (world) => {
             element.elem.remove()
             animateGrowBig(() => {
               setPowerState(POWER_STATES.SUPER)
+              let currentHeight = TILE_HEIGHT
+              currentHeight *= (state === STATES.NORMAL)? 1 : 2
+              world.addScore(x, y + currentHeight, 1000)
             })
         }
         else if (element.elem.is('.flower') && !isFire()) {
@@ -316,6 +319,11 @@ const Mario = (world) => {
     if (enemyKills.length) {
       if (velocityY < 0) {
         enemyKills.map(e => e.die())
+
+        // add score
+        let currentHeight = TILE_HEIGHT
+        currentHeight *= (state === STATES.NORMAL)? 1 : 2
+        world.addScore(x, y + currentHeight)
 
         // make mario jump after killing
         setState(STATES.JUMP)

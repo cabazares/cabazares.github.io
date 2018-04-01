@@ -5,6 +5,7 @@ html, body {
   color: white;
   height: 100%;
   overflow: hidden;
+  font-family: 'Press Start 2P', cursive;
 }
 
 #timerBox {
@@ -298,6 +299,49 @@ html, body {
   height: 32px;
   background-image: url(images/tiles/flower.gif);
 }
+
+
+/**************************/
+
+#HUD {
+  margin: 2% 4%;
+  position: fixed;
+  width: 92%;
+}
+
+#HUD .hudBox {
+  width: 30%;
+  float: left;
+}
+
+#HUD #scoreBox {
+  text-align: left
+}
+
+#HUD #scoreBox .coins {
+  background-repeat: no-repeat;
+  padding-left: 24px;
+  background-size: 20%;
+  background-image: url(images/tiles/coinHUD.gif);
+}
+
+#HUD #worldLevel {
+  text-align: center;
+  float: right;
+}
+
+#HUD #worldTime {
+  float: right;
+  text-align: right;
+}
+
+.floatScore {
+  position: absolute;
+  font-size: 10px;
+  z-index: 10;
+}
+
+/**************************/
 
 #endFlag {
     left: 6400px;
