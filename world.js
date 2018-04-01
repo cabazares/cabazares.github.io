@@ -91,6 +91,11 @@ const World = (DOM) => {
     }
   }
 
+  const begin = () => {
+    createLevel(1)
+    cloudFactory.begin()
+  }
+
   const createLevel = (level) => {
     if (level === 1) {
       createBackground(level, DOM.backgrounds)
@@ -380,7 +385,7 @@ const World = (DOM) => {
     },
 
     mario,
-    createLevel,
+    begin,
 
     handleInput,
     update,
@@ -397,16 +402,16 @@ const CloudFactory = (world) => {
   const parent = world.DOM.clouds
   const clouds = []
 
-  const createCloud = () => {
+  const createCloud = (onScreen) => {
     const scrollLeft = $window.scrollLeft()
-    const top = rand(350, 50)
-    const left = scrollLeft + windowWidth
+    const top = rand(windowHeight * 0.4, TILE_HEIGHT * 2)
+    const left = (onScreen)? rand (windowWidth) : scrollLeft + windowWidth
     const cloud = $(`<div class="bg cloud cloud${rand(3)}"></div>`).css({
         top,
         left
     })
-    cloud.top = rand(350, 50)
-    cloud.left = scrollLeft + windowWidth
+    cloud.top = top
+    cloud.left = left
     cloud.width = cloud.css('width')
     parent.append(cloud)
     clouds.push(cloud)
@@ -414,9 +419,16 @@ const CloudFactory = (world) => {
     return cloud
   }
 
+  const begin = () => {
+    const onScreen = true
+    createCloud(onScreen)
+    createCloud(onScreen)
+    createCloud(onScreen)
+  }
+
   const update = (delta) => {
     // chance to create cloud
-    if (Math.random() <= 0.003) {
+    if (Math.random() <= 0.006) {
       createCloud()
     }
   }
@@ -424,7 +436,7 @@ const CloudFactory = (world) => {
   const render = () => {
     // move clouds
     clouds.forEach(cloud => {
-      cloud.left = cloud.left - rand(2, 0)
+      cloud.left = cloud.left - rand(1, 0)
       cloud.css({
         left: cloud.left
       })
@@ -442,6 +454,7 @@ const CloudFactory = (world) => {
 
   return {
     clouds,
+    begin,
     update,
     render
   }

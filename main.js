@@ -71,7 +71,7 @@ $(document).ready(() => {
     enemies: $('#enemies')
   })
 
-  world.createLevel(1)
+  world.begin()
 
   MainLoop
     .setBegin(world.handleInput)
