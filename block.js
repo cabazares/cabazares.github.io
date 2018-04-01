@@ -41,6 +41,7 @@ const Block = (type, world, x, y) => {
 
   const hit = (power) => {
     if (animating || state !== STATES.ACTIVE) {
+      AudioManager.playSound('bump')
       return
     }
 
@@ -50,6 +51,8 @@ const Block = (type, world, x, y) => {
     // move up a bit
     if (type === 'brick') {
       if (power === 'normal') {
+        AudioManager.playSound('break')
+
         const offset = 5
         animating = true
         elem.animate({
@@ -103,6 +106,7 @@ const Block = (type, world, x, y) => {
     }
 
     if (type === 'coin') {
+      AudioManager.playSound('coin')
       // animate coin
       const coin = $('<div class="effect coin"></div>')
       parent.append(coin)
@@ -121,6 +125,7 @@ const Block = (type, world, x, y) => {
         world.collectCoin()
       })
     } else if (type === 'mushroom') {
+      AudioManager.playSound('item')
       if (world.mario.isSmall()) {
         world.elements.push(Mushroom(world, left, bottom + 32 + 1))
       } else {

@@ -101,6 +101,8 @@ const World = (DOM) => {
   }
 
   const begin = () => {
+    AudioManager.playBG()
+
     createLevel(1)
     cloudFactory.begin()
   }

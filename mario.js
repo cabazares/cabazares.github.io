@@ -207,6 +207,7 @@ const Mario = (world) => {
     if (keyMap[KEYS.UP] && onGround) {
       velocityY += jumpSpeed
       jumpUp = true
+      AudioManager.playSound('jump')
     } else if (keyMap[KEYS.UP] && jumpUp) {
       if (velocityY + jumpSpeed <= jumpVelocityLimit) {
         velocityY += jumpSpeed
@@ -294,6 +295,7 @@ const Mario = (world) => {
       collisions.map(element => {
         if (element.elem.is('.mushroom') && power === POWER_STATES.NORMAL) {
             element.elem.remove()
+            AudioManager.playSound('powerup')
             animateGrowBig(() => {
               setPowerState(POWER_STATES.SUPER)
               let currentHeight = TILE_HEIGHT
@@ -319,6 +321,7 @@ const Mario = (world) => {
     if (enemyKills.length) {
       if (velocityY < 0) {
         enemyKills.map(e => e.die())
+        AudioManager.playSound('squish')
 
         // add score
         let currentHeight = TILE_HEIGHT
@@ -374,6 +377,8 @@ const Mario = (world) => {
   }
 
   const die = () => {
+    AudioManager.pauseBG()
+    AudioManager.playSound('die')
     setState(STATES.DIE)
     isAnimating = true
     elem.animate({
@@ -383,7 +388,7 @@ const Mario = (world) => {
     }, 400).animate({
       bottom: -height
     }, 400, () => {
-      reset()
+      setTimeout(reset, 2000)
     })
   }
 
@@ -400,6 +405,7 @@ const Mario = (world) => {
     power = POWER_STATES.NORMAL
     onChangeState()
     isAnimating = false
+    AudioManager.playBG()
   }
 
   const position = () => {
