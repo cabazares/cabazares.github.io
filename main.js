@@ -56,8 +56,10 @@ const KEYS = {
 
 $(document).ready(() => {
   // set countdown
-  const deadline = '2018-03-12T15:00:00'
-  let countdownInterval = setCountdown(deadline)
+  if (window.location.href.indexOf('?') !== -1) {
+    const deadline = '2018-04-03T17:00:00'
+    let countdownInterval = setCountdown(deadline)
+  }
 
   // create world level 1
   const world = World({

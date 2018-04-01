@@ -34,6 +34,8 @@ const setCountdown = (date) => {
 
   $('#deadline').text(moment(deadline).format('LLLL'))
 
+  $('#timerBox').show()
+
   return setInterval(setDates, 1000)
 }
 
