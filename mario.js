@@ -3,7 +3,7 @@ const Mario = (world) => {
   const SPRITE_BASE_URL = 'images/mario/'
   const STATES = {
     STAND: 'stand',
-    WALK: 'walk',
+    WALK: 'walk1',
     JUMP: 'jump',
     DIE: 'die'
   }
@@ -17,14 +17,15 @@ const Mario = (world) => {
     RIGHT: 'right'
   }
 
-  const jumpSpeed = 14.2
-  const jumpVelocityLimit = 10
+  const jumpSpeed = 1.55
+  const jumpVelocityLimit = 11.5
+  const velocityLimit = 3
   const gravity = 0.8
 
   let isAnimating = false
   let width = 26
   let height = 32
-  let speed = 8
+  let speed = 0.8
   let state = STATES.STAND
   let power = POWER_STATES.NORMAL
   let direction = DIRECTION.RIGHT
@@ -34,110 +35,74 @@ const Mario = (world) => {
   let prevY = 0
   let x = 80
   let y = 64
+  let velocityX = 0
   let velocityY = 0
+  let jumpUp = false
   let onGround = true
 
-  const doc = $(document)
   let walkInterval
 
-  // animation handler
+  // animation related variables
   let lastRender = Date.now()
   let elapsed = lastRender
 
   const walkFrameLength = 3
+  let lastWalkFrameIndex = 1
   let lastWalkFrame = lastRender
 
+  // dom elements
   const parent = world.DOM.playArea
-  const elem = $(`<div id="player">` +
-                 `<div class="playerHead"></div>` +
-                 `<div class="playerFoot"></div>` +
-                 `<div class="playerLeft"></div>` +
-                 `<div class="playerRight"></div>` +
-                 `</div>`)
+  const elem = $(`<div id="player"></div>`)
   parent.append(elem)
-  const head = elem.find('.playerHead')
-  const foot = elem.find('.playerFoot')
-  const pLeft = elem.find('.playerLeft')
-  const pRight = elem.find('.playerRight')
 
+  // set initial values for DOM
   elem.css({
     left:x,
     bottom: y
   })
 
   // set new state for mario
-  const setState = (newState) => {
-    if (state === newState) {
+  const setState = (newState, newDir=direction) => {
+    if (state === newState && newDir === direction) {
       return
     }
 
+    direction = newDir
     state = newState
     onChangeState()
   }
 
-  // handle key presses
-  const keyMap = {}
-  let onkeydown, onkeyup
-  onkeydown = onkeyup = (e) => {
-    keyMap[e.keyCode] = e.type == 'keydown'
-  }
-  doc.on('keydown', onkeydown)
-  doc.on('keyup', onkeyup)
-
-  // on change state handler
-  const onChangeState = () => {
-    switch(state) {
-      case STATES.WALK:
-        if (power === POWER_STATES.NORMAL) {
-          width = 26
-          height = 32
-          sprite = 'walk1.gif'
-        } else {
-          width = 32
-          height = 64
-          sprite = (isFire())? 'fire_walk1.gif' : 'big_walk1.gif'
-        }
-      break
-
-      case STATES.JUMP:
-        if (power === POWER_STATES.NORMAL) {
-          width = 34
-          height = 32
-          sprite = 'jump.gif'
-        } else {
-          width = 32
-          height = 64
-          sprite = (isFire())? 'fire_jump.gif' : 'big_jump.gif'
-        }
-      break
-
-      case STATES.DIE:
-        sprite = 'dead.gif'
-        width = 30
-        height = 28
-      break
-
-      case STATES.STAND:
-      default:
-        if (power === POWER_STATES.NORMAL) {
-          width = 26
-          height = 32
-          sprite = 'stand.gif'
-        } else {
-          width = 32
-          height = 64
-          sprite = (isFire())? 'fire_stand.gif' : 'big_stand.gif'
-        }
+  // set new power state for mario
+  const setPowerState = (newPowerState, newDir=direction) => {
+    if (power === newPowerState && newDir === direction) {
+      return
     }
+
+    direction = newDir
+    power = newPowerState
+    onChangeState()
+  }
+
+
+  // set css classes for mario based on state and power
+  const onChangeState = () => {
+    // switch css class for state
+    const classesToRemove = Object.values(STATES).filter(x => x !== state)
+    classesToRemove.push('walk2', 'walk3')
+    elem.removeClass(classesToRemove)
+    elem.addClass(state)
+
+    // switch css class for power
+    elem.removeClass(Object.values(POWER_STATES).filter(x => x !== power))
+    elem.addClass(power)
+
     elem.css({
-      'background-image': `url('${SPRITE_BASE_URL + sprite}')`,
       transform: `scaleX(${(direction === DIRECTION.RIGHT)? 1 : -1})`,
-      width,
-      height
     })
   }
 
-  const onRender = () => {
+  // animate walk frames for mario
+  const animateFrames = () => {
     const now = Date.now()
     elapsed = now - lastRender
     lastRender = now
@@ -150,266 +115,240 @@ const Mario = (world) => {
     // animate
     const walkElapsed = now - lastWalkFrame
     if (state === STATES.WALK && walkElapsed > 50) {
-      const lastFrame = parseInt(sprite.replace(/[^\d]+/g, ''))
-      const newFrame = (lastFrame % walkFrameLength) + 1
-      sprite = `walk${newFrame}.gif`
-      sprite = (power === POWER_STATES.SUPER)? 'big_' + sprite : sprite
-      sprite = (power === POWER_STATES.FIRE)? 'fire_' + sprite : sprite
-      elem.css({
-        'background-image': `url('${SPRITE_BASE_URL + sprite}')`
-      })
+      const newFrame = (lastWalkFrameIndex % walkFrameLength) + 1
+      elem.removeClass(`walk${lastWalkFrameIndex}`)
+      elem.addClass(`walk${newFrame}`)
+      lastWalkFrameIndex = newFrame
       lastWalkFrame = now
     }
   }
 
-  const createFireworks = () => {
-    const scrollLeft = $(window).scrollLeft()
-    const top = rand(windowHeight * 0.8, 50)
-    const left = scrollLeft + rand(windowWidth)
-    const firework = $(`<div class="effect fireworks"></div>`).css({
-        top,
-        left
+  // animate growing big
+  const animateGrowBig = (callback) => {
+    isAnimating = true
+    return elem
+    // big
+    .animate({opacity:1}, 0, () => {
+      elem.addClass('super')
     })
-    parent.append(firework)
-
-    setTimeout(() => {
-      firework.remove()
-    }, 200)
-
-    return firework
+    // small
+    .animate({opacity:1}, 60, () => {
+      elem.removeClass('super')
+    })
+    // big
+    .animate({opacity:1}, 60, () => {
+      elem.addClass('super')
+    })
+    // small
+    .animate({opacity:1}, 60, () => {
+      elem.removeClass('super')
+    })
+    .animate({opacity:1}, 60, () => {
+      isAnimating = false
+      if (callback) {
+        callback()
+      }
+    })
   }
 
+  const animateTurnSmall = (callback) => {
+    isAnimating = true
+    return elem
+    // small
+    .animate({opacity:1}, 0, () => {
+      elem.removeClass('super')
+    })
+    // big
+    .animate({opacity:1}, 40, () => {
+      elem.addClass('super')
+    })
+    // small
+    .animate({opacity:1}, 40, () => {
+      elem.removeClass('super')
+    })
+    // big
+    .animate({opacity:1}, 40, () => {
+      elem.addClass('super')
+    })
+    .animate({opacity:1}, 0, () => {
+      isAnimating = false
+      if (callback) {
+        callback()
+      }
+    })
+  }
 
-  // render
-  const render = () => {
-
+  const handleInput = (keyMap) => {
     // dont do anything if dead already or is animating
     if (state === STATES.DIE || isAnimating) {
       return
     }
 
-    if (world.isLevelFinished()) {
-      // chance to create cloud
-      if (Math.random() <= 0.2) {
-        createFireworks()
-      }
-    }
-
-    // check win -------------------------
-    const flagPosition = 6400
-    if (!world.isLevelFinished() && x >= flagPosition) {
-      const pole = $('#endFlag')
-      const maxDist = pole.height() - 64
-      const flag = $('#endFlag .flag')
-      let distance = windowHeight - pole.position().top - y - 32
-      distance = (distance <= 0)? 0 : distance
-      distance = (distance > maxDist)? maxDist : distance
-      flag.animate({
-        top: distance
-      }, 500, () => {
-        $('#timerBox').remove()
-        const congratsElem = $('<div id="congrats">')
-        congratsElem.hide()
-        $('body').append(congratsElem)
-        congratsElem.slideDown()
-      })
-      world.finishLevel()
-    }
-
-    // actions ----------------------------
     let hasActed = false
     if (keyMap[KEYS.LEFT]) {
-      direction = DIRECTION.LEFT
-      setState(STATES.WALK)
-      x -= speed
+      setState(STATES.WALK, DIRECTION.LEFT)
+      if (velocityX > 1) {
+        velocityX = 1
+      }
+      velocityX -= (Math.abs(velocityX) < velocityLimit)? speed : 0
       hasActed = true
     }
 
     if (keyMap[KEYS.RIGHT]) {
-      direction = DIRECTION.RIGHT
-      setState(STATES.WALK)
-      x += speed
+      setState(STATES.WALK, DIRECTION.RIGHT)
+      if (velocityX < -1) {
+        velocityX = -1
+      }
+      velocityX += (Math.abs(velocityX) < velocityLimit)? speed : 0
       hasActed = true
-    }
-
-    // handle jump anim
-    if (keyMap[KEYS.UP] || !onGround) {
-      setState(STATES.JUMP)
     }
 
     // handle jump
     if (keyMap[KEYS.UP] && onGround) {
-      velocityY = jumpSpeed
+      velocityY += jumpSpeed
+      jumpUp = true
+    } else if (keyMap[KEYS.UP] && jumpUp) {
+      if (velocityY + jumpSpeed <= jumpVelocityLimit) {
+        velocityY += jumpSpeed
+      } else {
+        jumpUp = false
+      }
       hasActed = true
     }
     else if(!keyMap[KEYS.UP] && velocityY > jumpVelocityLimit) {
       velocityY = jumpVelocityLimit
     }
 
-    if (!hasActed && onGround) {
+    if (!hasActed && onGround && velocityX === 0.0) {
       setState(STATES.STAND)
     }
-    // end actions ----------------------
+  }
 
-    onRender()
-
-    // collisions ----------------------------
-    // left or right collision
-    const platformCollision = elem.collision('.platform,.block')
-    if (platformCollision.length) {
-      x = prevX
-      /*
-      const platform = platformCollision
-      const platformX = platform.css('left')
-      if (x < platformX) {
-        x = platformX - width
-      } else {
-        x = platformX + platform.width()
-      }
-      */
+  const update = (delta) => {
+    // dont do anything if dead already or is animating
+    if (state === STATES.DIE || isAnimating) {
+      return
     }
 
-    // collision with ground
-    const groundCollision = foot.collision('.platform,.block')
-    onGround = groundCollision.length > 0
-    if (groundCollision.length && state != STATES.JUMP) {
-      // end drop
-      const floor = groundCollision
-      velocityY = 0
-      y = parseInt(floor.css('bottom')) + floor.height()
-    }
+    // move vertical ------------------------------------
+    const colliders = world.platforms.concat(world.blocks)
 
-    // head collision
-    const headCollision = head.collision('.block')
-    if (headCollision.length) {
-      // limit position
-      const block = headCollision
-      velocityY = 0
-      y = parseInt(block.css('bottom')) - height - 2
+    // check if jumping up
+    jumpUp = (jumpUp && velocityY > 0 && velocityY > gravity)
 
-      // tell block it was hit
-      const hitBlock = world.blocks.filter(b => {
-        return b.elem[0] === block[0]
-      })[0]
-      hitBlock.hit(power)
-    }
-
-    // check if killed enemy
-    const enemyKills = foot.collision('.enemy')
-    if (enemyKills.length) {
-      const hitEnemy = world.enemies.filter(b => {
-        return b.elem[0] === enemyKills[0]
-      })[0]
-      hitEnemy.die()
-
-      // make mario jump after killing
-      setState(STATES.JUMP)
-      velocityY = jumpSpeed
-    }
-
-    // check collision with enemies
-    const enemyHits = elem.collision('.enemy')
-    if (!enemyKills.length && enemyHits.length && state !== STATES.DIE) {
-      if (power === POWER_STATES.NORMAL) {
-        die()
-      } else {
-        elem
-        // small
-        .animate({opacity:1}, 0, () => {
-          elem.css({
-            height: height - 32,
-            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
-          })
-        })
-        // big
-        .animate({opacity:1}, 40, () => {
-          elem.css({
-            height,
-            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
-          })
-        })
-        // small
-        .animate({opacity:1}, 40, () => {
-          elem.css({
-            height: height - 32,
-            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
-          })
-        })
-        // big
-        .animate({opacity:1}, 40, () => {
-          elem.css({
-            height,
-            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
-          })
-        })
-        .animate({opacity:1}, 0, () => {
-          power = POWER_STATES.NORMAL
-          onChangeState()
-        })
-      }
-    }
-
-    const elementCollision = elem.collision('.element')
-    if (elementCollision.length) {
-      if (elementCollision.is('.mushroom') && power === POWER_STATES.NORMAL) {
-        elementCollision.remove()
-        isAnimating = true
-        elem
-        // big
-        .animate({opacity:1}, 0, () => {
-          elem.css({
-            height: height + 32,
-            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
-          })
-        })
-        // small
-        .animate({opacity:1}, 60, () => {
-          elem.css({
-            height,
-            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
-          })
-        })
-        // big
-        .animate({opacity:1}, 60, () => {
-          elem.css({
-            height: height + 32,
-            'background-image': `url('${SPRITE_BASE_URL}big_stand.gif')`
-          })
-        })
-        // small
-        .animate({opacity:1}, 60, () => {
-          elem.css({
-            height,
-            'background-image': `url('${SPRITE_BASE_URL}stand.gif')`
-          })
-        })
-        .animate({opacity:1}, 60, () => {
-          power = POWER_STATES.SUPER
-          onChangeState()
-          isAnimating = false
-        })
-      }
-      else if (elementCollision.is('.flower') && !isFire()) {
-        elementCollision.remove()
-        isAnimating = true
-        elem
-        .animate({opacity:1}, 60, () => {
-          power = POWER_STATES.FIRE
-          onChangeState()
-          isAnimating = false
-        })
-      }
-    }
-
-    // gravity --------------------
     // calc jump
-    velocityY -= (!onGround)? gravity : 0
-    y += velocityY
+    velocityY -= (!onGround)? gravity : 1
+    let collisions = getOverlaps(elem, colliders, 0, velocityY)
 
-    if (y <= 0) {
-      y = 0
+    if (collisions.length) {
+      const hit = collisions[0]
+      if (y > hit.getY() && velocityY < 0) {
+        // if hit floor // set y to top of floor
+        y = hit.getY() + hit.height + 1
+        onGround = true
+      }
+      // if hit head
+      // also check y positions to prevent bug where
+      // we get hit on characther change size due to jump
+      else if (y < hit.getY()) {
+        let currentHeight = TILE_WIDTH
+        currentHeight *= (state === STATES.NORMAL)? 1 : 2
+        const newY = hit.getY() - currentHeight - 2
+
+        // tell block it was hit
+        if (hit.hit) {
+          hit.hit(power)
+        }
+        jumpUp = false
+      }
       velocityY = 0.0
-      die()
+    } else {
+      onGround = false
+      y += velocityY
+    }
+
+    
+    // move horizontal ------------------------------------
+    // reduce velocity if on ground
+    if (onGround && direction === DIRECTION.LEFT && velocityX < 0) {
+      velocityX += 0.1
+    } else if (onGround && direction === DIRECTION.RIGHT && velocityX > 0) {
+      velocityX -= 0.1
+    }
+
+    // check if can move
+    collisions = getOverlaps(elem, colliders, velocityX, 0)
+    if (collisions.length) {
+      const hit = collisions[0]
+      const hitX = hit.getX()
+      //x = (x >= hitX)? hitX + hit.width - width - 1 : hitX - width - 1
+      velocityX = 0.0
+    } else {
+      x += velocityX
+    }
+
+
+    // collision with world elements
+    collisions = getOverlaps(elem, world.elements)
+    if (collisions.length) {
+      collisions.map(element => {
+        if (element.elem.is('.mushroom') && power === POWER_STATES.NORMAL) {
+            element.elem.remove()
+            animateGrowBig(() => {
+              setPowerState(POWER_STATES.SUPER)
+            })
+        }
+        else if (element.elem.is('.flower') && !isFire()) {
+          element.elem.remove()
+          isAnimating = true
+          elem
+          .animate({opacity:1}, 60, () => {
+            setPowerState(POWER_STATES.FIRE)
+            isAnimating = false
+          })
+        }
+      })
+    }
+
+
+    // check if collide with enemy
+    const enemyKills = getOverlaps(elem, world.enemies)
+    if (enemyKills.length) {
+      if (velocityY < 0) {
+        enemyKills.map(e => e.die())
+
+        // make mario jump after killing
+        setState(STATES.JUMP)
+        velocityY = jumpSpeed * 10
+      } else if (!isAnimating) {
+        if (power === POWER_STATES.NORMAL) {
+          die()
+        } else {
+          animateTurnSmall(() => {
+            setPowerState(POWER_STATES.NORMAL)
+          })
+        }
+      }
+    }
+
+    // die if fall off screen
+    if (y <= 0) {
+      setTimeout(reset, 100)
+    }
+
+    // round off velocityX
+    if (Math.abs(velocityX) <= 0.001) {
+      velocityX = 0
+    }
+
+  }
+
+  // render
+  const render = () => {
+    if (!onGround && state !== STATES.DIE) {
+      setState(STATES.JUMP)
+    } else if (state !== STATES.DIE) {
+      setState((velocityX)? STATES.WALK : STATES.STAND)
     }
 
     if (prevX !== x || prevY !== y) {
@@ -422,10 +361,9 @@ const Mario = (world) => {
     // save previous values
     prevX = x
     prevY = y
-  }
 
-  // trigger on change state
-  onChangeState()
+    animateFrames()
+  }
 
   const die = () => {
     setState(STATES.DIE)
@@ -445,10 +383,14 @@ const Mario = (world) => {
     // reset position to start of level
     x = startX
     y = startY
+    velocityX = 0
+    velocityY = 0
     prevX = x
     prevY = y
     direction = DIRECTION.RIGHT
-    setState(STATES.STAND)
+    state = STATES.STAND
+    power = POWER_STATES.NORMAL
+    onChangeState()
     isAnimating = false
   }
 
@@ -459,10 +401,16 @@ const Mario = (world) => {
     }
   }
 
+  const getX = () => {
+    return x
+  }
   const setX = (newX) => {
     x = newX
   }
 
+  const getY = () => {
+    return y
+  }
   const setY = (newY) => {
     y = newY
   }
@@ -475,17 +423,20 @@ const Mario = (world) => {
     return power === POWER_STATES.FIRE
   }
 
-
   const mario = {
     position,
+    getX,
     setX,
+    getY,
     setY,
     isSmall,
 
-    onChangeState,
+    reset,   
+
+    handleInput,
+    update,
     render
   }
-  world.mario = mario
 
   return mario
 }

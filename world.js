@@ -1,5 +1,7 @@
 
 const World = (DOM) => {
+  const doc = $(document)
+
   const platforms = []
   const enemies = []
   const blocks = []
@@ -9,12 +11,16 @@ const World = (DOM) => {
     platforms,
     enemies,
     blocks,
-    elements
+    elements,
+    clouds
   }
 
+  // setup player
+  mario = Mario(world)
   const cloudFactory = CloudFactory(world)
 
-  // level state
+  // game state
+  let isGameRunning = false
   let isLevelFinished = false
   let flagPosition = NaN
 
@@ -31,8 +37,17 @@ const World = (DOM) => {
       height
     })
 
-    platforms.push(elem)
     DOM.platforms.append(elem)
+
+    platforms.push({
+      elem,
+      left,
+      bottom,
+      getX: () => left,
+      getY: () => bottom,
+      width,
+      height
+    })
 
     return elem
   }
@@ -194,13 +209,118 @@ const World = (DOM) => {
       Enemy('goomba', world, 1332)
       Enemy('goomba', world, 1600)
       Enemy('goomba', world, 1632)
+
+      // enemies over first hole
+      Enemy('goomba', world, 2592, 320)
+      Enemy('goomba', world, 2656, 320)
+
+      // after second hole
+      Enemy('goomba', world, 3200)
+      Enemy('goomba', world, 3264)
+
+      // after triangle coin area
+      Enemy('koopa', world, 109 * 32)
+      Enemy('goomba', world, 116 * 32)
+      Enemy('goomba', world, 118 * 32)
+
+      // before mountain block
+      Enemy('goomba', world, 126 * 32)
+      Enemy('goomba', world, 128 * 32)
+      Enemy('goomba', world, 130 * 32)
+      Enemy('goomba', world, 132 * 32)
+
+      // before final mountain
+      Enemy('goomba', world, 176 * 32)
+      Enemy('goomba', world, 178 * 32)
     }
   }
 
+  const activateEnemies = () => {
+    // activate enemies that come in to the screen
+    const scrollLeft = $window.scrollLeft()
+    enemies.filter(e => {
+      return !e.isActive() && e.getX() <= (scrollLeft + windowWidth)
+    }).map(e => {
+      e.activate()
+    })
+  }
+
+  // handle key presses
+  const keyMap = {}
+  let onkeydown, onkeyup
+  onkeydown = onkeyup = (e) => {
+    keyMap[e.keyCode] = e.type == 'keydown'
+  }
+  doc.on('keydown', onkeydown)
+  doc.on('keyup', onkeyup)
+
+  const handleInput = () => {
+    // send keypress status to elements
+    mario.handleInput(keyMap)
+  }
+
+  const update = (delta) => {
+    // pause game
+    if (!isGameRunning) {
+      return
+    }
+
+    // win state -------------------------
+    if (world.isLevelFinished()) {
+      if (Math.random() <= 0.2) {
+        createFireworks()
+      }
+    }
+
+    // check win -------------------------
+    const flagPosition = 6400
+    const marioPos = mario.position()
+    if (!world.isLevelFinished() && marioPos.x >= flagPosition) {
+      const pole = $('#endFlag')
+      const maxDist = pole.height() - 64
+      const flag = $('#endFlag .flag')
+      let distance = windowHeight - pole.position().top - marioPos.y - 32
+      distance = (distance <= 0)? 0 : distance
+      distance = (distance > maxDist)? maxDist : distance
+
+      flag.animate({
+        top: distance
+      }, 500, () => {
+        $('#timerBox').remove()
+        const congratsElem = $('<div id="congrats">')
+        congratsElem.hide()
+        $('body').append(congratsElem)
+        congratsElem.slideDown()
+      })
+      world.finishLevel()
+    }
+
+
+    // update everything in the world
+    mario.update()
+
+    elements.forEach(e => {
+      if (e.update) {
+        e.update()
+      }
+    })
+
+    cloudFactory.update()
+  }
+
   const render = () => {
+    // pause game
+    if (!isGameRunning) {
+      return
+    }
+
+    mario.render()
     cloudFactory.render()
 
     enemies.forEach(e => {
+      if (!e.isActive()) {
+        return
+      }
       e.render()
     })
 
@@ -209,15 +329,61 @@ const World = (DOM) => {
         e.render()
       }
     })
+
+    // scroll based on playet position
+    const scrollLeft = $window.scrollLeft()
+    const scrollMax = (windowWidth * 0.5) + scrollLeft
+    const playerX = mario.getX()
+    if (playerX >= scrollMax) {
+      const offset = (playerX - scrollMax)
+      window.scrollTo(scrollLeft + offset, 0)
+
+      activateEnemies()
+    }
+    const scrollMin = (windowWidth * 0.4) + scrollLeft
+    if (playerX <= scrollMin && scrollLeft > 0) {
+      const offset = scrollMin - playerX
+      window.scrollTo(scrollLeft - offset, 0)
+    }
+  }
+
+  const createFireworks = () => {
+    const scrollLeft = $(window).scrollLeft()
+    const top = rand(windowHeight * 0.8, 50)
+    const left = scrollLeft + rand(windowWidth)
+    const firework = $(`<div class="effect fireworks"></div>`).css({
+        top,
+        left
+    })
+    parent.append(firework)
+
+    setTimeout(() => {
+      firework.remove()
+    }, 200)
+
+    return firework
   }
 
   Object.assign(world, {
-    ...world,
-    createLevel,
+    isGameRunning: () => isGameRunning,
+    startGame: () => {
+      mario.reset()
+      activateEnemies()
+      isGameRunning = true
+    },
+    pauseGame: () => {
+      isGameRunning = false
+    },
     isLevelFinished: () => isLevelFinished,
     finishLevel: () => {
       isLevelFinished = true
     },
+
+    mario,
+    createLevel,
+
+    handleInput,
+    update,
     render
   })
 
@@ -248,12 +414,14 @@ const CloudFactory = (world) => {
     return cloud
   }
 
-  const render = () => {
+  const update = (delta) => {
     // chance to create cloud
     if (Math.random() <= 0.003) {
       createCloud()
     }
+  }
 
+  const render = () => {
     // move clouds
     clouds.forEach(cloud => {
       cloud.left = cloud.left - rand(2, 0)
@@ -274,6 +442,7 @@ const CloudFactory = (world) => {
 
   return {
     clouds,
+    update,
     render
   }
 }

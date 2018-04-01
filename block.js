@@ -7,6 +7,9 @@ const Block = (type, world, x, y) => {
     EMPTY: 'empty'
   }
 
+  const width = 32
+  const height = 32
+
   let sprite = `brick.gif`
   let state = STATES.ACTIVE
   let parent = world.DOM.blocks
@@ -115,15 +118,22 @@ const Block = (type, world, x, y) => {
       })
     } else if (type === 'mushroom') {
       if (world.mario.isSmall()) {
-        world.elements.push(Mushroom(parent, left, bottom + 32))
+        world.elements.push(Mushroom(world, left, bottom + 32 + 1))
       } else {
-        world.elements.push(Flower(parent, left, bottom + 32))
+        world.elements.push(Flower(world, left, bottom + 32))
       }
     }
   }
 
   const block = {
     elem,
+    left: x * 32,
+    bottom: y * 32,
+    getX: () => x * 32,
+    getY: () => y * 32,
+    width,
+    height,
+
     hit
   }
   world.blocks.push(block)
@@ -131,9 +141,13 @@ const Block = (type, world, x, y) => {
   return block
 }
 
-const Flower = (parent, x, y) => {
+const Flower = (world, x, y) => {
   const elem = $(`<div class="flower element collider"></div>`)
+  let parent = world.DOM.blocks
   parent.append(elem)
+
+  const width = 32
+  const height = 32
 
   // animate entrance
   elem.css({
@@ -144,16 +158,25 @@ const Flower = (parent, x, y) => {
     height: 32
   }, 500)
 
-  return {}
+  return {
+    elem,
+    left: x,
+    bottom: y,
+    getX: () => left,
+    getY: () => bottom,
+    width,
+    height
+  }
 }
 
-const Mushroom = (parent, x, y) => {
+const Mushroom = (world, x, y) => {
   const SPRITE_BASE_URL = 'images/tiles/'
   const DIRECTION = {
     LEFT: 'left',
     RIGHT: 'right'
   }
 
+  let parent = world.DOM.blocks
   let prevX = x
   let prevY = y
   let isAnimating = true
@@ -161,7 +184,8 @@ const Mushroom = (parent, x, y) => {
   let sprite = `mushroom.gif`
   let width = 32
   let height = 32
-  let moveSpeed = 3
+  let moveSpeed = 2
+  let fallSpeed = 5
   const elem = $(`<div class="mushroom element collider"></div>`)
   elem.css({
     'background-image': `url('${SPRITE_BASE_URL + sprite}')`,
@@ -182,36 +206,47 @@ const Mushroom = (parent, x, y) => {
   elem.css({
     height: 0
   }).animate({
-    height
+    height: height
   }, 500, () => {
     isAnimating = false
   })
+
+  const update = (delta) => {
+    if (isAnimating) {
+      return
+    }
+
+    const collidable = world.platforms.concat(world.blocks)
+
+    // move horizontal
+    const transX = (direction === DIRECTION.LEFT)? -moveSpeed : moveSpeed
+    const collisions = getOverlaps(elem, collidable, transX, 0)
+    if (collisions.length) {
+      const hit = collisions[0]
+      const hitX = hit.getX()
+      // move mushroom to side
+      x = (x >= hitX)? hitX + hit.width - width - 1 : hitX - width - 1
+      
+      // change direction
+      direction = (direction === DIRECTION.LEFT)? DIRECTION.RIGHT : DIRECTION.LEFT
+    }
+    else {
+      x += (direction === DIRECTION.LEFT)? -moveSpeed : moveSpeed
+    }
+
+    // try gravity
+    const platforms = getOverlaps(elem, collidable, transX, -fallSpeed)
+    if (!platforms.length) {
+      y += -fallSpeed
+    }
+  }
 
   const render = () => {
     if (isAnimating) {
       return
     }
 
-    if (direction === DIRECTION.LEFT) {
-      x -= moveSpeed
-    } else {
-      x += moveSpeed
-    }
     move()
-
-    const pipeCollides = elem.collision('.pipe')
-    if (pipeCollides.length) {
-      direction = (direction === DIRECTION.LEFT)? DIRECTION.RIGHT : DIRECTION.LEFT
-    }
-
-    // try gravity
-    y -= 7
-    elem.css({bottom: y})
-    if (elem.collision('.platform,.block').length) {
-      y += 7
-      elem.css({bottom: y})
-    }
-
     prevX = x
     prevY = y
   }
@@ -221,6 +256,13 @@ const Mushroom = (parent, x, y) => {
   }
 
   return {
+    elem,
+    getX: () => left,
+    getY: () => bottom,
+    width,
+    height,
+
+    update,
     render
   }
 }
