@@ -17,25 +17,38 @@ const AudioManager = (() => {
     flagpole: new Audio("audio/Flagpole.wav"),
   }
   
+  const isPlaying = (item) => {
+    return (item.currentTime > 0 && !item.paused &&
+            !item.ended && item.readyState > 2)
+  }
+
+  const playBG = () => {
+    pauseBG()
+    level1BG.currentTime = 0
+    level1BG.play()
+  }
+
+  const pauseBG = () => {
+    if (isPlaying(level1BG)) {
+      level1BG.pause()
+    }
+  }
+
+  const playSound = (effect) => {
+    const sound = effects[effect]
+    if (sound) {
+      if (isPlaying(sound)) {
+        sound.pause()
+      }
+      sound.currentTime = 0
+      sound.play()
+    }
+  }
 
   return {
-    playBG: () => {
-      if (!level1BG.paused && level1BG.duration > 0) {
-        level1BG.pause()
-      }
-      level1BG.currentTime = 0
-      level1BG.play()
-    },
-    pauseBG: () => {
-      level1BG.pause()
-    },
-    playSound: (effect) => {
-      const sound = effects[effect]
-      if (sound) {
-        sound.pause()
-        sound.currentTime = 0
-        sound.play()
-      }
-    }
+    isPlaying,
+    playBG,
+    pauseBG,
+    playSound
   }
 })()
