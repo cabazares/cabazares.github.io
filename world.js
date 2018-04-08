@@ -123,6 +123,7 @@ const World = (DOM) => {
     elements = world.elements = []
 
     createLevel(1)
+    activateEnemies()
 
     AudioManager.playBG()
   }
@@ -413,7 +414,7 @@ const World = (DOM) => {
         top,
         left
     })
-    parent.append(firework)
+    DOM.elements.append(firework)
 
     setTimeout(() => {
       firework.remove()
@@ -446,7 +447,6 @@ const World = (DOM) => {
     isGameRunning: () => isGameRunning,
     startGame: () => {
       mario.reset()
-      activateEnemies()
       isGameRunning = true
     },
     pauseGame: () => {

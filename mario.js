@@ -395,7 +395,6 @@ const Mario = (world) => {
       bottom: -height
     }, 400, () => {
       setTimeout(() => {
-        world.resetLevel()
         reset()
       }, 2000)
     })
@@ -414,6 +413,7 @@ const Mario = (world) => {
     power = POWER_STATES.NORMAL
     onChangeState()
     isAnimating = false
+    world.resetLevel()
   }
 
   const position = () => {
