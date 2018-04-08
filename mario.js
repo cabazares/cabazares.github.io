@@ -22,6 +22,7 @@ const Mario = (world) => {
   const velocityLimit = 3
   const gravity = 0.8
 
+  let isInvulnerable = false
   let isAnimating = false
   let width = 26
   let height = 32
@@ -97,6 +98,7 @@ const Mario = (world) => {
     elem.addClass(power)
 
     elem.css({
+      opacity: (isInvulnerable)? 0.8 : 1.0,
       transform: `scaleX(${(direction === DIRECTION.RIGHT)? 1 : -1})`,
     })
   }
@@ -331,12 +333,16 @@ const Mario = (world) => {
         // make mario jump after killing
         setState(STATES.JUMP)
         velocityY = jumpSpeed * 10
-      } else if (!isAnimating) {
-        if (power === POWER_STATES.NORMAL) {
+      } else if (!isAnimating && !isInvulnerable) {
+        if (power === POWER_STATES.NORMAL ) {
           die()
         } else {
+          isInvulnerable = true
           animateTurnSmall(() => {
             setPowerState(POWER_STATES.NORMAL)
+            setTimeout(() => {
+              isInvulnerable = false
+            }, 2000)
           })
         }
       }
